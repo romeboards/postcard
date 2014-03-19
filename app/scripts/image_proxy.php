@@ -21,11 +21,22 @@
  * 
  */
 
+function addToLog($string) {
+    // Log ALL THE THINGS
+    $logfile = "log.txt"; 
+    $loghandle = fopen($logfile, 'r+');
+    $logdata = fread($loghandle, filesize($logfile));
+    $logdata = date("H:i:s") . ": " . $string . "\n";
+    fwrite($loghandle, $logdata); 
+    fclose($loghandle); 
+    return;
+}
+
 try {
         
         // Check if the URL is set
         if(isset($_GET["url"])) {
-                
+
                 // Get the URL and decode to remove any %20, etc
                 $url = urldecode($_GET["url"]);
                 
@@ -66,10 +77,12 @@ try {
                 
                         // If a callback has been specified
                         if(isset($_GET["callback"])) {
-                        
+
                                 // Wrap the callback around the JSON
                                 $return_val = $_GET["callback"] . '(' . $return_val . ');';
                         
+                                addToLog("Success: " . $_GET["url"]);
+
                                 // Set the headers to JSON and so they wont cache or expire
                                 header('Cache-Control: no-cache, must-revalidate');
                                 header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
