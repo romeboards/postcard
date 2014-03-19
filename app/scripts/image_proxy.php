@@ -21,12 +21,14 @@
  * 
  */
 
+date_default_timezone_set('America/New_York');
+
 function addToLog($string) {
     // Log ALL THE THINGS
     $logfile = "log.txt"; 
     $loghandle = fopen($logfile, 'r+');
     $logdata = fread($loghandle, filesize($logfile));
-    $logdata = date("H:i:s") . ": " . $string . "\n";
+    $logdata = date("Y-m-d h:i:s") . ": " . $string . "\n";
     fwrite($loghandle, $logdata); 
     fclose($loghandle); 
     return;
@@ -93,23 +95,27 @@ try {
                         
                         // No callback was set
                         } else {
+                                addToLog("ERROR (no callback set): " . $_GET["url"]);
                                 header('HTTP/1.0 400 Bad Request');
                                 print "No callback specified";
                         }
                 
                 // The requested file is not an image
                 } else {
+                        addToLog("ERROR (not an image): " . $_GET["url"]);
                         header('HTTP/1.0 400 Bad Request');
                         print "Invalid image specified";
                 }
         
         // No URL set so error
         } else {
+                addToLog("ERROR (no url set):");
                 header('HTTP/1.0 400 Bad Request');
                 echo "No URL was specified";
         }
 
-} catch (Exception $e) {        
+} catch (Exception $e) {   
+        addToLog("ERROR (internal server error):");     
         header('HTTP/1.0 500 Internal Server Error');
         echo "Internal Server Error";
 }
