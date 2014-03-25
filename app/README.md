@@ -1,4 +1,0 @@
-postcard
-========
-
-Postcard.js plugin
