@@ -140,263 +140,330 @@ function testCSS(prop) {
 
 /*
 
-	BEGIN DAMN Plugin
+	POSTCARD.JS PLUGIN
 
 */
-
-/*!
- * jQuery lightweight plugin boilerplate
- * Original author: @ajpiano
- * Further changes, comments: @addyosmani
- * Licensed under the MIT license
- */
-
-
-// the semi-colon before the function invocation is a safety 
-// net against concatenated scripts and/or other plugins 
-// that are not closed properly.
 ;(function ( $, window, document, undefined ) {
-    
-    // undefined is used here as the undefined global 
-    // variable in ECMAScript 3 and is mutable (i.e. it can 
-    // be changed by someone else). undefined isn't really 
-    // being passed in so we can ensure that its value is 
-    // truly undefined. In ES5, undefined can no longer be 
-    // modified.
-    
+        
     // window and document are passed through as local 
     // variables rather than as globals, because this (slightly) 
     // quickens the resolution process and can be more 
     // efficiently minified (especially when both are 
-    // regularly referenced in your plugin).
+    // regularly referenced).
 
-    // Create the defaults once
-        var defaults = {
-            height: "",
-            width: "",
-            proxyURL: "http://lab.layerframe.com/postcard/scripts/image_proxy.php",
-            saveURL: "http://lab.layerframe.com/postcard/scripts/save_file.php",
-            filename: "yourpostcard.png",
-            backgroundImgUrl: "../images/test.jpg",
-            backgroundColor: "#30414C",
-            fontFamily: "sans-serif",
-            fontSize: "16px",
-            fontColor: "#fff",
-            fontStyle: "normal",
-            fontWeight: "normal"
-        },
-        browser = { isOpera : false, isFirefox : false, isSafari : false, isChrome : false, isIE : false },
-        pub = {
-            init : function(options) {
-                this.element = this[0];
-                this.options = $.extend( {}, defaults, options);
-                this.browser = browser;
-                this.browser.isOpera = !!(window.opera && window.opera.version);  // Opera 8.0+
-                this.browser.isFirefox = testCSS('MozBoxSizing');                 // FF 0.8+
-                this.browser.isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
-                this.browser.isChrome = !this.browser.isSafari && testCSS('WebkitTransform');  // Chrome 1+
-                this.browser.isIE = /*@cc_on!@*/false || testCSS('msTransform');  // At least IE6
-                this._height = this.options.height = this.element.height;
-                this._width = this.options.width = this.element.width;
-                this._ctx = this.element.getContext("2d");
+    var defaults = {
+        height: "",
+        width: "",
+        proxyURL: "http://lab.layerframe.com/postcard/scripts/image_proxy.php",
+        filename: "yourpostcard.png",
+        backgroundImgUrl: "",
+        backgroundColor: "#fff",
+        fontFamily: "sans-serif",
+        fontSize: "16px",
+        fontColor: "#fff",
+        fontStyle: "normal",
+        fontWeight: "normal"
+    },
+    browser = { isOpera : false, isFirefox : false, isSafari : false, isChrome : false, isIE : false },
+    pub = {
+        init : function(options) {
+            this.element = this[0];
+            this.options = $.extend( {}, defaults, options);
+            this.browser = browser;
+            this.browser.isOpera = !!(window.opera && window.opera.version);  // Opera 8.0+
+            this.browser.isFirefox = testCSS('MozBoxSizing');                 // FF 0.8+
+            this.browser.isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+            this.browser.isChrome = !this.browser.isSafari && testCSS('WebkitTransform');  // Chrome 1+
+            this.browser.isIE = /*@cc_on!@*/false || testCSS('msTransform');  // At least IE6
+            this._height = this.options.height = this.element.height;
+            this._width = this.options.width = this.element.width;
+            this._ctx = this.element.getContext("2d");
 
-                this._images = [];
-                //add background image
-                if(this.options.backgroundImgUrl.length) {
-                    pub.addImage.apply(this,  [ this.options.backgroundImgUrl, 0, 0, this._width, this._height ]);
-                }
-                pub.draw.apply(this);
-            },
-            draw : function() {  
-
-                //draw background
-                //console.log('bg');
-                //console.log(this._width);
-                this._ctx.rect(0,0,this._width, this._height);
-                this._ctx.fillStyle = this.options.backgroundColor;
-                this._ctx.fill();
-
-                //pri.drawImages.apply(this);
-            },
-            addImage : function (url, x, y, w, h) {
-
-                    //create internal image object
-                    //push to _images to maintain order
-                    //make call to proxy to fill in the data, using index in _images
-
-                    var newimg = {
-                        url : url,
-                        x : x,
-                        y: y,
-                        w : w,
-                        h : h,
-                        loaded : false
-                    };
-                    this._images.push(newimg);
-                    var newindex = this._images.length-1;
-                    console.log(newindex + ' added');
-                    //async call, will change 'loaded' to true when it feels like it
-                    pri.getImage.apply(this, [newindex]);                    
-            },
-            addImages : function (obj) {
-
-                // no guarantee to the order that the images get painted on!
-
-                var images = obj.images;
-                for(var i = 0; i < images.length; i++) {
-                    pub.addImage.apply(this, [images[i].url, images[i].x, images[i].y, images[i].w, images[i].h]);
-                }
-            },
-            setFont : function (font) {
-
-                //format : "hex style weight size family"
-                //relies on "px" being part of the font size declaration
-                var pieces = font.split(' ', 4),
-                    family = font.slice(font.indexOf('px') + 3);
-                this.options.fontColor = pieces[0];
-                this.options.fontStyle = pieces[1];
-                this.options.fontWeight = pieces[2];
-                this.options.fontSize = pieces[3];
-                this.options.fontFamily = family;
-            },
-            setFontFamily : function (family) {
-                this.options.fontFamily = family;
-            },
-            setFontStyle : function (style) {
-                this.options.fontStyle = style;      
-            },
-            setFontWeight : function (weight) {
-                this.options.fontWeight = weight;
-            },
-            setFontSize : function (size) {
-                this.options.fontSize = size;
-            },
-            setFontColor : function (color) {
-                this.options.fontColor = color;        
-            },
-            addText : function (text, x, y) {
-                pri.setFont.apply(this);
-                this._ctx.fillText(text,x,y);
-            },
-            addFullText : function (text, style, x, y) {
-                pub.setFont.apply(this, [style]);
-                pub.addText.apply(this, [text, x, y]);
-            },
-            save : function(event) { 
-
-                // var data = this.element.toDataURL("image/png");
-                // data = data.substr(data.indexOf(',') + 1).toString();
-                // var dataInput = document.createElement("input") ;
-                // dataInput.setAttribute("name", 'imgdata') ;
-                // dataInput.setAttribute("value", data);
-
-                // var nameInput = document.createElement("input") ;
-                // nameInput.setAttribute("name", 'name') ;
-                // nameInput.setAttribute("value",this.options.filename + '.png');
-
-                // var myForm = document.createElement("form");
-                // myForm.method = 'post';
-                // myForm.action = this.options.saveURL;
-                // myForm.appendChild(dataInput);
-                // myForm.appendChild(nameInput);
-
-                // document.body.appendChild(myForm);
-                // myForm.submit();
-                // document.body.removeChild(myForm);
-
-                //console.log(event.target);
-                if(this.browser.isSafari || this.browser.isIE) {
-                    alert('danger! danger!');
-                    event.target.setAttribute('target', '_blank');
-                }
-                event.target.href = this.element.toDataURL();
-                event.target.download = this.options.filename;
-
-
-            },// GOOD
-            update : function( content, values ) { 
-                console.log(content);
-                console.log(values.foo);
-            }// !!!
-        },
-        pri = {
-            getImage : function (i) {                                               //i corressponds to the index of the new image in _images  
-                var that = this,
-                    newimg = that._images[i],
-                    ctx = that._ctx;
-
-                $.getImageData({
-                    url: newimg.url,
-                    server: this.options.proxyURL,
-                    success: function(data){
-                        newimg.data = data;
-                        newimg.loaded = true;
-                        ctx.drawImage(newimg.data,newimg.x,newimg.y,newimg.w,newimg.h);
-                        console.log(i + ' painted: ' + newimg.url);
-                        pri.allImagesLoaded.apply(that);
-                    },
-                    error: function(xhr, text_status) { $(that.element).trigger('postcardimageerror', text_status); }
-                }); 
-            },
-            allImagesLoaded : function () {
-                for(var i = 0; i < this._images.length; i++) {
-                    var img = this._images[i];
-                    if(!img.loaded) return;
-                    else if(i == this._images.length-1 && img.loaded) $(this.element).trigger('postcardimagesloaded');
-                }                
-            },
-            drawImages : function () {
-
-                //iterate through _images, and used cached data or WAIT
-
-                //keep calling recursively till its done?????? this scares me
-
-                for(var i = 0; i < this._images.length; i++) {
-
-
-
-                }
-
-                // console.log('alldone?');
-                // console.log(this._images);
-
-                // var that = this,                                                    //needed cause $.each overwrites magical 'this'
-                //     ctx = this._ctx;
-
-                // $.each(this._images, function (i, img) {
-                //     if(!img.loading) {
-                //         pri.drawImages.apply(this);
-                //         console.log('ideally waiting');
-
-                //     } else {
-                //         ctx.drawImage(img.data,img.x,img.y,img.w,img.h);
-                //     }
-                // });
-            },
-            setFont : function () {
-
-                //the function that actually sets the font and fontcolor in the ctx
-                //called only before writing text
-
-                var newfont = this.options.fontStyle + ' ' 
-                            + 'normal '
-                            + this.options.fontWeight + ' ' 
-                            + this.options.fontSize + ' '
-                            + this.options.fontFamily;
-
-                this._ctx.fillStyle = this.options.fontColor; 
-                this._ctx.font = newfont;
+            this._text = [], this._images = [], this._oldtext = [], this._oldimages = [];
+            //add background image
+            if(this.options.backgroundImgUrl.length) {
+                pub.addImage.apply(this,  [ this.options.backgroundImgUrl, 0, 0, this._width, this._height ]);
             }
-        };
+            //draw background
+            pri.drawInit.apply(this);
+        },
+        addImage : function (url, x, y, w, h) {
 
-        $.fn.postcard = function(methodOrOptions) {
-            if ( pub[methodOrOptions] ) {
-                return pub[ methodOrOptions ].apply( this, Array.prototype.slice.call( arguments, 1 ));
-            } else if ( typeof methodOrOptions === 'object' || ! methodOrOptions ) {
-                return pub.init.apply( this, arguments );
-            } else {
-                $.error( 'Method ' +  methodOrOptions + ' does not exist.' );
-            }    
-        };
+                //create internal image object
+                //push to _images to maintain order
+                //make call to proxy to fill in the data, using index in _images
+
+                var newimg = {
+                    url : url,
+                    x : x,
+                    y: y,
+                    w : w,
+                    h : h,
+                    loaded : false
+                };
+                this._images.push(newimg);
+
+                $(this.element).trigger('postcardimagesloading');
+
+                var newindex = this._images.length-1;
+                var d = new Date();
+                //console.log(d.getSeconds() + ': ' + newindex + ' added');
+
+                //async call, will change 'loaded' to true when it feels like it
+                pri.getImage.apply(this, [newindex]);                    
+        },
+        addImages : function (obj) {
+
+            // no guarantee to the order that the images get painted on!
+
+            //var images = obj.images;
+            var images = obj;
+            for(var i = 0; i < images.length; i++) {
+                pub.addImage.apply(this, [images[i].url, images[i].x, images[i].y, images[i].w, images[i].h]);
+            }
+        },
+        setFont : function (font) {
+
+            //format : "hex style weight size family"
+            //relies on "px" being part of the font size declaration
+
+            var pieces = font.split(' ', 4),
+                family = font.slice(font.indexOf('px') + 3);
+            this.options.fontColor = pieces[0];
+            this.options.fontStyle = pieces[1];
+            this.options.fontWeight = pieces[2];
+            this.options.fontSize = pieces[3];
+            this.options.fontFamily = family;
+        },
+        setFontFamily : function (family) {
+            this.options.fontFamily = family;
+        },
+        setFontStyle : function (style) {
+            this.options.fontStyle = style;      
+        },
+        setFontWeight : function (weight) {
+            this.options.fontWeight = weight;
+        },
+        setFontSize : function (size) {
+            this.options.fontSize = size;
+        },
+        setFontColor : function (color) {
+            this.options.fontColor = color;        
+        },
+        addText : function (text, x, y) {                           // uses only current style
+
+            var newtext = {
+                text : text,
+                style : pri.getFont.apply(this),
+                x : x,
+                y : y
+            };
+            this._text.push(newtext);
+            pri.setFontToCtx.apply(this);
+            this._ctx.fillText(text,x,y);
+        },
+        addFullText : function (text, style, x, y) {                // sets a new style, then calls addText()   
+            pub.setFont.apply(this, [style]);                       // only sets internal options...
+            pub.addText.apply(this, [text, x, y]);                  // ...this sets the font to ctx
+        },
+        add : function (obj) {
+
+            //send in a JSON layout, draw all pictures then draw all text
+            var that = this;
+            var newimages = [], newtext = [];
+            for(var i = 0; i < obj.length; i++) {
+                if(obj[i].url !== undefined) {                      // detects an image...
+                    newimages.push(obj[i]);
+                } else if(obj[i].text !== undefined) {              // ...or else detects text...
+                    newtext.push(obj[i]);
+                }
+                else $.error('Parsing error: postcard.add()');      // ...or nothing at all, error
+            }
+
+            pub.addImages.apply(this, [newimages]);
+
+            $(this.element).on('_loaded', function () {
+                for(var i = 0; i < newtext.length; i++) {
+                    var text = newtext[i];
+                    pub.addFullText.apply(that, [text.text, text.style, text.x, text.y]);
+                }
+                $(this).off('_loaded');
+            });
+
+        },
+        setBreakpoint : function (breakpoint, newwidth, json) {
+
+            var that = this;
+            var bigger = function () {
+                    if($(window).outerWidth(true) > breakpoint) { 
+
+                        console.log('bigger');
+                        $(that.element).trigger('postcardresize');
+
+
+                        that.element.width = that._width = that._oldwidth;
+                        that._oldwidth = newwidth;
+
+                        var oldobj = that._oldimages.concat(that._oldtext);
+                        that._oldimages = that._images;
+                        that._oldtext = that._text;
+
+                        pri.clear.apply(that);
+
+                        pub.add.apply(that, [oldobj]);
+
+                        $(window).on('resize', smaller);
+                        $(window).off('resize', bigger);
+                    }                  
+                },
+                smaller = function () {
+                    if($(window).outerWidth(true) <= breakpoint) { 
+
+                        console.log('smaller');
+                        $(that.element).trigger('postcardresize');
+
+                        that._oldwidth = that._width;
+                        that.element.width = that._width = newwidth;
+
+                        that._oldimages = that._images.slice(0);                        // .slice(0) forces pass by value
+                        that._oldtext = that._text.slice(0);
+
+                        pri.clear.apply(that);
+
+                        pub.add.apply(that, [json]);
+
+                        $(window).on('resize', bigger);
+                        $(window).off('resize', smaller);
+                    }
+                };
+            $(window).on('resize', smaller);
+
+            // $(window).on('resize', function () {
+            //     if($(window).outerWidth(true) <= breakpoint) { 
+            //         $(that.element).trigger('postcardresize');
+            //         that.element.width = that._width = newwidth;
+            //         pri.clear.apply(that);
+            //         that.images = [];
+            //         that.text = [];
+            //         pub.add.apply(that, [json]);
+            //         $(window).off('resize');
+            //     }
+            // });
+            
+        },
+        save : function(event) { 
+
+            // var data = this.element.toDataURL("image/png");
+            // data = data.substr(data.indexOf(',') + 1).toString();
+            // var dataInput = document.createElement("input") ;
+            // dataInput.setAttribute("name", 'imgdata') ;
+            // dataInput.setAttribute("value", data);
+
+            // var nameInput = document.createElement("input") ;
+            // nameInput.setAttribute("name", 'name') ;
+            // nameInput.setAttribute("value",this.options.filename + '.png');
+
+            // var myForm = document.createElement("form");
+            // myForm.method = 'post';
+            // myForm.action = this.options.saveURL;
+            // myForm.appendChild(dataInput);
+            // myForm.appendChild(nameInput);
+
+            // document.body.appendChild(myForm);
+            // myForm.submit();
+            // document.body.removeChild(myForm);
+
+            //browsers that don't support the download attribute
+            //best we can do is give them a nice message
+            if(this.browser.isSafari || this.browser.isIE) {
+                alert('danger! danger!');
+                event.target.setAttribute('target', '_blank');
+            }
+            event.target.href = this.element.toDataURL();
+            event.target.download = this.options.filename;
+        }
+    },
+    pri = {
+        drawInit : function () {
+
+            //draw initial stuff, background color or image, anything sent in with the beginning
+
+            this._ctx.rect(0,0,this._width, this._height);
+            this._ctx.fillStyle = this.options.backgroundColor;
+            this._ctx.fill();
+
+        },
+        getImage : function (i) {                                               // i corressponds to the index of the new image in _images  
+            var that = this,
+                newimg = that._images[i],
+                ctx = that._ctx;
+
+            $.getImageData({
+                url: newimg.url,
+                server: this.options.proxyURL,
+                success: function(data){
+                    newimg.data = data;
+                    newimg.loaded = true;
+                    ctx.drawImage(newimg.data,newimg.x,newimg.y,newimg.w,newimg.h);
+                    //console.log(i + ' painted: ' + newimg.url);
+                    pri.allImagesLoaded.apply(that);
+                },
+                error: function(xhr, text_status) { $(that.element).trigger('postcardimageerror', text_status); }
+            }); 
+        },
+        allImagesLoaded : function () {
+            for(var i = 0; i < this._images.length; i++) {
+                var img = this._images[i];
+                if(!img.loaded) {
+                    this.allImagesLoaded = false;
+                    return;
+                }
+                else if(i == this._images.length-1 && img.loaded) {
+                    this.allImagesLoaded = true;
+                    $(this.element).trigger('_loaded');
+                    $(this.element).trigger('postcardimagesloaded');
+                }
+            }                
+        },
+        getloaded : function () {
+            return this.allImagesLoaded;
+        },
+        clear : function() {
+            this._text.length = 0;
+            this._images.length = 0;
+            this._ctx.clearRect(0, 0, this._width, this._height);
+        },
+        setFontToCtx : function () {
+
+            //the function that actually sets the font and fontcolor in the ctx
+            //called only before writing text
+
+            var newfont = this.options.fontStyle + ' ' 
+                        + 'normal '
+                        + this.options.fontWeight + ' ' 
+                        + this.options.fontSize + ' '
+                        + this.options.fontFamily;
+
+            this._ctx.fillStyle = this.options.fontColor; 
+            this._ctx.font = newfont;
+        },
+        getFont : function () {
+            return  this.options.fontColor + ' ' 
+                    + this.options.fontStyle + ' ' 
+                    + this.options.fontWeight + ' ' 
+                    + this.options.fontSize + ' '
+                    + this.options.fontFamily;
+        }
+    };
+
+    $.fn.postcard = function(methodOrOptions) {
+        if ( pub[methodOrOptions] ) {
+            return pub[ methodOrOptions ].apply( this, Array.prototype.slice.call( arguments, 1 ));
+        } else if ( typeof methodOrOptions === 'object' || ! methodOrOptions ) {
+            return pub.init.apply( this, arguments );
+        } else {
+            $.error( 'Method ' +  methodOrOptions + ' does not exist.' );
+        }    
+    };
 
 })( jQuery, window, document );
