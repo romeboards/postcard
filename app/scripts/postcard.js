@@ -138,6 +138,15 @@ function testCSS(prop) {
     return prop in document.documentElement.style;
 }
 
+if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
+    XMLHttpRequest.prototype.sendAsBinary = function(string) {
+        var bytes = Array.prototype.map.call(string, function(c) {
+            return c.charCodeAt(0) & 0xff;
+        });
+        this.send(new Uint8Array(bytes).buffer);
+    };
+}
+
 /*
 
 	POSTCARD.JS PLUGIN
@@ -305,8 +314,8 @@ function testCSS(prop) {
                         that._oldwidth = newwidth;
 
                         var oldobj = that._oldimages.concat(that._oldtext);
-                        that._oldimages = that._images;
-                        that._oldtext = that._text;
+                        that._oldimages = that._images.slice(0);
+                        that._oldtext = that._text.slice(0);
 
                         pri.clear.apply(that);
 
@@ -326,6 +335,7 @@ function testCSS(prop) {
                         that.element.width = that._width = newwidth;
 
                         that._oldimages = that._images.slice(0);                        // .slice(0) forces pass by value
+                        console.log(that._oldimages);
                         that._oldtext = that._text.slice(0);
 
                         pri.clear.apply(that);
@@ -381,6 +391,44 @@ function testCSS(prop) {
             }
             event.target.href = this.element.toDataURL();
             event.target.download = this.options.filename;
+        },
+        shareOnFB : function(caption) {                                         // caption must ALWAYS be user input
+
+            var that = this;
+            var data = this.element.toDataURL("image/png");
+            var filename = this.options.filename;
+            var encodedPng = data.substring(data.indexOf(',') + 1, data.length);
+            var decodedPng = Base64Binary.decode(encodedPng);
+
+            FB.getLoginStatus(function(response) {
+
+                if (response.status == 'connected') {
+                // the user is logged in and has authenticated your
+                // app, and response.authResponse supplies
+                // the user's ID, a valid access token, a signed
+                // request, and the time the access token 
+                // and signed request each expire
+
+                    var uid = response.authResponse.userID;
+                    var accessToken = response.authResponse.accessToken;
+
+                    console.log('post?!?!?!');
+               // console.log(caption);
+
+                    pri.postImageToFacebook.apply(that, [accessToken, filename, "image/png", decodedPng, caption]);
+
+                } else if (response.status == 'not_authorized') {
+                    // logged in but not authorized
+                    FB.login(function(response) {
+                        pri.postImageToFacebook.apply(that, [response.authResponse.accessToken, filename, "image/png", decodedPng, caption]);
+                    }, {scope: "publish_stream"});
+                } else {
+                    // not logged in, not authorized
+                    FB.login(function(response)  { 
+                        pri.postImageToFacebook.apply(that, [response.authResponse.accessToken, filename, "image/png", decodedPng, caption]);
+                    }, {scope: "publish_stream"});
+                }
+            });
         }
     },
     pri = {
@@ -395,21 +443,24 @@ function testCSS(prop) {
         },
         getImage : function (i) {                                               // i corressponds to the index of the new image in _images  
             var that = this,
-                newimg = that._images[i],
                 ctx = that._ctx;
 
-            $.getImageData({
-                url: newimg.url,
-                server: this.options.proxyURL,
-                success: function(data){
-                    newimg.data = data;
-                    newimg.loaded = true;
-                    ctx.drawImage(newimg.data,newimg.x,newimg.y,newimg.w,newimg.h);
-                    //console.log(i + ' painted: ' + newimg.url);
-                    pri.allImagesLoaded.apply(that);
-                },
-                error: function(xhr, text_status) { $(that.element).trigger('postcardimageerror', text_status); }
-            }); 
+            if(this._images[i].imgdata === undefined) {             
+                $.getImageData({
+                    url: that._images[i].url,
+                    server: this.options.proxyURL,
+                    success: function(data) {
+                        that._images[i].imgdata = data;
+                        that._images[i].loaded = true;
+                        ctx.drawImage(that._images[i].imgdata, that._images[i].x, that._images[i].y, that._images[i].w, that._images[i].h);
+                        pri.allImagesLoaded.apply(that);
+                    },
+                    error: function(xhr, text_status) { $(that.element).trigger('postcardimageerror', text_status); }
+                }); 
+            } else {
+               ctx.drawImage(that._images[i].imgdata, that._images[i].x, that._images[i].y, that._images[i].w, that._images[i].h);
+               pri.allImagesLoaded.apply(that); 
+            }
         },
         allImagesLoaded : function () {
             for(var i = 0; i < this._images.length; i++) {
@@ -453,6 +504,32 @@ function testCSS(prop) {
                     + this.options.fontWeight + ' ' 
                     + this.options.fontSize + ' '
                     + this.options.fontFamily;
+        },
+        postImageToFacebook : function ( authToken, filename, mimeType, imageData, message ) {
+            // this is the multipart/form-data boundary we'll use
+            var boundary = '----ThisIsTheBoundary1234567890';
+            
+            // let's encode our image file, which is contained in the var
+            var formData = '--' + boundary + '\r\n'
+            formData += 'Content-Disposition: form-data; name="source"; filename="' + filename + '"\r\n';
+            formData += 'Content-Type: ' + mimeType + '\r\n\r\n';
+            for ( var i = 0; i < imageData.length; ++i )
+            {
+                formData += String.fromCharCode( imageData[ i ] & 0xff );
+            }
+            formData += '\r\n';
+            formData += '--' + boundary + '\r\n';
+            formData += 'Content-Disposition: form-data; name="message"\r\n\r\n';
+            formData += message + '\r\n'
+            formData += '--' + boundary + '--\r\n';
+            
+            var xhr = new XMLHttpRequest();
+            xhr.open( 'POST', 'https://graph.facebook.com/me/photos?access_token=' + authToken, true );
+            xhr.onload = xhr.onerror = function() {
+                console.log( xhr.responseText );
+            };
+            xhr.setRequestHeader( "Content-Type", "multipart/form-data; boundary=" + boundary );
+            xhr.sendAsBinary( formData );
         }
     };
 

@@ -198,6 +198,7 @@ $(document).ready(function () {
 
 	$('a').click(function (event) {
 		$canvas.postcard('save', event);
+		//$canvas.postcard('shareOnFB', event);
 	});
 
 	$('button').click(function () {
