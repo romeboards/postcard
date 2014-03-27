@@ -14,20 +14,6 @@
         <!-- build:js scripts/vendor/modernizr.js -->
         <script src="bower_components/modernizr/modernizr.js"></script>
         <!-- endbuild -->
-
-<script type="text/javascript">
-  WebFontConfig = {
-    google: { families: [ 'Cutive+Mono::latin' ] }
-  };
-  (function() {
-    var wf = document.createElement('script');
-    wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
-      '://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
-    wf.type = 'text/javascript';
-    wf.async = 'true';
-    var s = document.getElementsByTagName('script')[0];
-    s.parentNode.insertBefore(wf, s);
-  })(); </script>
     </head>
     <body>
         <div id="fb-root"></div>
@@ -65,7 +51,6 @@
           
         <div class="container"><canvas id="canvas-postcard" width="1000" height="300"></canvas></div>
         <a>save</a>
-        <button>clear</button>
 
         <!-- <p style="font-family: 'Cutive Mono', serif;">something something</p> -->
 
@@ -76,7 +61,7 @@
         <!-- endbuild -->
 
         <!-- build:js scripts/main.js -->
-        <script src="scripts/postcard.js"></script>
+        <script src="scripts/postcard.min.js"></script>
         <script src="scripts/main.js"></script>
         <!-- endbuild -->
 </body>

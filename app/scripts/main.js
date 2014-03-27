@@ -1,8 +1,8 @@
 $(document).ready(function () {
 
-	var $canvas = $('#canvas-postcard')[0];
+	var canvas = $('#canvas-postcard')[0];
 
-	$canvas.postcard({ filename : "newname.png" });
+	canvas.postcard({ filename : "newname.png" });
 
 	//$canvas.postcard('draw');
 
@@ -48,7 +48,7 @@ $(document).ready(function () {
 	// $canvas.postcard('addImage', 'http://1.bp.blogspot.com/-yfyp8XITuA4/TMcf1djnL1I/AAAAAAAAGXo/qg6RHHBaTDU/s1600/smiley_with_thumbs_up.gif', 180,0, 500, 270);
 
 
-	$($canvas).on('postcardimagesloading', function () {
+	$(canvas).on('postcardimagesloading', function () {
 		$('.container').addClass('generating');
 	});
 
@@ -58,7 +58,7 @@ $(document).ready(function () {
 	 	pStyle = "#fff normal normal 35px sans-serif",
 	 	smallStyle = "blue normal normal 65px Tahoma";
 
-	$canvas.postcard('add', [
+	canvas.postcard('add', [
 		{
 			"url" : "http://placekitten.com/g/300/300",
 			"x" : "0", "y" : "0", "w" : "300", "h" : "300"
@@ -101,7 +101,7 @@ $(document).ready(function () {
 		}
 	]);
 
-	$canvas.postcard('setBreakpoint', 1000, 600, [
+	canvas.postcard('setBreakpoint', 1000, 600, [
 		{
 			"url" : "http://placekitten.com/g/400/150",
 			"x" : "0", "y" : "0", "w" : "400", "h" : "150"
@@ -166,7 +166,7 @@ $(document).ready(function () {
 
 
 
-	$($canvas).on('postcardimagesloaded', function () {
+	$(canvas).on('postcardimagesloaded', function () {
 
 		$('.container').removeClass('generating');
 		//console.log('all images loaded');
@@ -191,18 +191,15 @@ $(document).ready(function () {
 
 
 
-	$($canvas).on('postcardimageerror', function (event, status) {
+	$(canvas).on('postcardimageerror', function (event, status) {
 		console.log('ERROR: ' + status);
 	});
 
 
 	$('a').click(function (event) {
-		$canvas.postcard('save', event);
-		//$canvas.postcard('shareOnFB', event);
-	});
-
-	$('button').click(function () {
-		$canvas.postcard('clear');
+		//$canvas.postcard('save', event);
+		console.log('hello');
+		canvas.postcard('shareOnFB', 'hello, cruel world');
 	});
 
 });

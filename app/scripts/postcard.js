@@ -1,3 +1,4 @@
+;(function ( window, document, undefined ) {
 /*
 Copyright (c) 2011, Daniel Guerrero
 All rights reserved.
@@ -158,7 +159,7 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
 	POSTCARD.JS PLUGIN
 
 */
-;(function ( window, document, undefined ) {
+
         
     // window and document are passed through as local 
     // variables rather than as globals, because this (slightly) 
@@ -360,18 +361,6 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
                     }
                 };
             window.addEventListener('resize', smaller);
-
-            // $(window).on('resize', function () {
-            //     if($(window).outerWidth(true) <= breakpoint) { 
-            //         $(that.element).trigger('postcardresize');
-            //         that.element.width = that._width = newwidth;
-            //         pri.clear.apply(that);
-            //         that.images = [];
-            //         that.text = [];
-            //         pub.add.apply(that, [json]);
-            //         $(window).off('resize');
-            //     }
-            // });
             
         },
         save : function(event) { 
@@ -406,12 +395,13 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
             event.target.download = this.options.filename;
         },
         shareOnFB : function(caption) {                                         // caption must ALWAYS be user input
-
             var that = this;
             var data = this.element.toDataURL("image/png");
             var filename = this.options.filename;
             var encodedPng = data.substring(data.indexOf(',') + 1, data.length);
             var decodedPng = Base64Binary.decode(encodedPng);
+
+            console.log('hello?');
 
             FB.getLoginStatus(function(response) {
 
