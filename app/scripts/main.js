@@ -1,6 +1,6 @@
 $(document).ready(function () {
 
-	var $canvas = $('#canvas-postcard');
+	var $canvas = $('#canvas-postcard')[0];
 
 	$canvas.postcard({ filename : "newname.png" });
 
@@ -48,7 +48,7 @@ $(document).ready(function () {
 	// $canvas.postcard('addImage', 'http://1.bp.blogspot.com/-yfyp8XITuA4/TMcf1djnL1I/AAAAAAAAGXo/qg6RHHBaTDU/s1600/smiley_with_thumbs_up.gif', 180,0, 500, 270);
 
 
-	$canvas.on('postcardimagesloading', function () {
+	$($canvas).on('postcardimagesloading', function () {
 		$('.container').addClass('generating');
 	});
 
@@ -166,7 +166,7 @@ $(document).ready(function () {
 
 
 
-	$canvas.on('postcardimagesloaded', function () {
+	$($canvas).on('postcardimagesloaded', function () {
 
 		$('.container').removeClass('generating');
 		//console.log('all images loaded');
@@ -191,7 +191,7 @@ $(document).ready(function () {
 
 
 
-	$canvas.on('postcardimageerror', function (event, status) {
+	$($canvas).on('postcardimageerror', function (event, status) {
 		console.log('ERROR: ' + status);
 	});
 

@@ -35,107 +35,113 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 var Base64Binary={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",decodeArrayBuffer:function(e){var t=e.length/4*3;var n=new ArrayBuffer(t);this.decode(e,n);return n},decode:function(e,t){var n=this._keyStr.indexOf(e.charAt(e.length-1));var r=this._keyStr.indexOf(e.charAt(e.length-2));var i=e.length/4*3;if(n==64)i--;if(r==64)i--;var s;var o,u,a;var f,l,c,h;var p=0;var d=0;if(t)s=new Uint8Array(t);else s=new Uint8Array(i);e=e.replace(/[^A-Za-z0-9\+\/\=]/g,"");for(p=0;p<i;p+=3){f=this._keyStr.indexOf(e.charAt(d++));l=this._keyStr.indexOf(e.charAt(d++));c=this._keyStr.indexOf(e.charAt(d++));h=this._keyStr.indexOf(e.charAt(d++));o=f<<2|l>>4;u=(l&15)<<4|c>>2;a=(c&3)<<6|h;s[p]=o;if(c!=64)s[p+1]=u;if(h!=64)s[p+2]=a}return s}}
 
 /*
- *
- *  jQuery $.getImageData Plugin 0.3
- *  http://www.maxnov.com/getimagedata
- *
- *  Written by Max Novakovic (http://www.maxnov.com/)
- *  Date: Thu Jan 13 2011
- *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *
- *  Includes jQuery JSONP Core Plugin 2.4.0 (2012-08-21)
- *  https://github.com/jaubourg/jquery-jsonp
- *  Copyright 2012, Julian Aubourg
- *  Released under the MIT License.
- *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *
- *  Copyright 2011, Max Novakovic
- *  Dual licensed under the MIT or GPL Version 2 licenses.
- *  http://www.maxnov.com/getimagedata/#license
- *
- */
-;// jQuery JSONP
-(function(d){function U(){}function V(a){r=[a]}function e(a,d,e){return a&&a.apply(d.context||d,e)}function g(a){function g(b){l++||(m(),n&&(t[c]={s:[b]}),A&&(b=A.apply(a,[b])),e(u,a,[b,B,a]),e(C,a,[a,B]))}function s(b){l++||(m(),n&&b!=D&&(t[c]=b),e(v,a,[a,b]),e(C,a,[a,b]))}a=d.extend({},E,a);var u=a.success,v=a.error,C=a.complete,A=a.dataFilter,p=a.callbackParameter,F=a.callback,W=a.cache,n=a.pageCache,G=a.charset,c=a.url,f=a.data,H=a.timeout,q,l=0,m=U,b,h,w;I&&I(function(a){a.done(u).fail(v);u=
-a.resolve;v=a.reject}).promise(a);a.abort=function(){!l++&&m()};if(!1===e(a.beforeSend,a,[a])||l)return a;c=c||x;f=f?"string"==typeof f?f:d.param(f,a.traditional):x;c+=f?(/\?/.test(c)?"&":"?")+f:x;p&&(c+=(/\?/.test(c)?"&":"?")+encodeURIComponent(p)+"=?");W||n||(c+=(/\?/.test(c)?"&":"?")+"_"+(new Date).getTime()+"=");c=c.replace(/=\?(&|$)/,"="+F+"$1");n&&(q=t[c])?q.s?g(q.s[0]):s(q):(J[F]=V,b=d(K)[0],b.id=L+X++,G&&(b[Y]=G),M&&11.6>M.version()?(h=d(K)[0]).text="document.getElementById('"+b.id+"')."+
-y+"()":b[N]=N,Z&&(b.htmlFor=b.id,b.event=z),b[O]=b[y]=b[P]=function(a){if(!b[Q]||!/i/.test(b[Q])){try{b[z]&&b[z]()}catch(c){}a=r;r=0;a?g(a[0]):s(R)}},b.src=c,m=function(a){w&&clearTimeout(w);b[P]=b[O]=b[y]=null;k[S](b);h&&k[S](h)},k[T](b,p=k.firstChild),h&&k[T](h,p),w=0<H&&setTimeout(function(){s(D)},H));return a}var N="async",Y="charset",x="",R="error",T="insertBefore",L="_jqjsp",z="onclick",y="on"+R,O="onload",P="onreadystatechange",Q="readyState",S="removeChild",K="<script>",B="success",D="timeout",
-J=window,I=d.Deferred,k=d("head")[0]||document.documentElement,t={},X=0,r,E={callback:L,url:location.href},M=J.opera,Z=!!d("<div>").html("\x3c!--[if IE]><i><![endif]--\x3e").find("i").length;g.setup=function(a){d.extend(E,a)};d.jsonp=g})(jQuery);
+* Lightweight JSONP fetcher
+* Copyright 2010-2012 Erik Karlsson. All rights reserved.
+* BSD licensed
+*/
 
-(function( $ ){
 
-    // jQuery getImageData Plugin
-    $.getImageData = function(args) {
-    
-        var regex_url_test = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
-    
-        // If a URL has been specified
-        if(args.url) {
-        
-            // Ensure no problems when using http or http
-            var is_secure = location.protocol === "https:";
-            var server_url = "";
-        
-            // If url specified and is a url + if server is secure when image or user page is
-            if(args.server && regex_url_test.test(args.server) && !(is_secure && args.server.indexOf('http:') == 0)) {
-                server_url = args.server;
-            } else server_url = "//img-to-json.appspot.com/";
-        
-            server_url += "?callback=?";
-        
-            //console.log("server url: " + server_url);
-
-            // Using jquery-jsonp (http://code.google.com/p/jquery-jsonp/) for the request
-            // so that errors can be handled
-            $.jsonp({   
-                url: server_url,
-                data: { url: escape(args.url) },
-                dataType: 'jsonp',
-                timeout: args.timeout || 30000,
-                // It worked!
-                success: function(data, status) {
-            
-                    // Create new, empty image
-                    var return_image = new Image();
-                
-                    // When the image has loaded
-                    $(return_image).load(function(){
-                    
-                        // Set image dimensions
-                        this.width = data.width;
-                        this.height = data.height;
-                    
-                        // Return the image
-                        if(typeof(args.success) == typeof(Function)) {
-                            args.success(this);
-                        }
-                    
-                    // Put the base64 encoded image into the src to start the load
-                    }).attr('src', data.data);
-                
-              },
-                // Something went wrong.. 
-                error: function(xhr, text_status){
-                    // Return the error(s)
-                    if(typeof(args.error) == typeof(Function)) {
-                        args.error(xhr, text_status);
-                    }
-                }
-            });
-        
-        // No URL specified so error
-        } else {
-            if(typeof(args.error) == typeof(Function)) {
-                args.error(null, "no_url");
-            }
+/*
+* Usage:
+* 
+* JSONP.get( 'someUrl.php', {param1:'123', param2:'456'}, function(data){
+*   //do something with data, which is the JSON object you should retrieve from someUrl.php
+* });
+*/
+var JSONP = (function(){
+    var counter = 0, head, window = this, config = {};
+    function load(url, pfnError) {
+        var script = document.createElement('script'),
+            done = false;
+        script.src = url;
+        script.async = true;
+ 
+        var errorHandler = pfnError || config.error;
+        if ( typeof errorHandler === 'function' ) {
+            script.onerror = function(ex){
+                errorHandler({url: url, event: ex});
+            };
         }
+
+        script.onload = script.onreadystatechange = function() {
+            if ( !done && (!this.readyState || this.readyState === "loaded" || this.readyState === "complete") ) {
+                done = true;
+                script.onload = script.onreadystatechange = null;
+                if ( script && script.parentNode ) {
+                    script.parentNode.removeChild( script );
+                }
+            }
+        };
+
+        if ( !head ) {
+            head = document.getElementsByTagName('head')[0];
+        }
+        head.appendChild( script );
+    }
+    function encode(str) {
+        return encodeURIComponent(str);
+    }
+    function jsonp(url, params, callback, callbackName) {
+        var query = (url||'').indexOf('?') === -1 ? '?' : '&', key;
+
+        callbackName = (callbackName||config['callbackName']||'callback');
+        var uniqueName = callbackName + "_json" + (++counter);
+
+        params = params || {};
+        for ( key in params ) {
+            if ( params.hasOwnProperty(key) ) {
+                query += encode(key) + "=" + encode(params[key]) + "&";
+            }
+        }   
+
+        window[ uniqueName ] = function(data){
+            callback(data);
+            try {
+                delete window[ uniqueName ];
+            } catch (e) {}
+            window[ uniqueName ] = null;
+        };
+ 
+        load(url + query + callbackName + '=' + uniqueName);
+        return uniqueName;
+    }
+    function setDefaults(obj){
+        config = obj;
+    }
+    return {
+        get:jsonp,
+        init:setDefaults
     };
-
-})(jQuery);
-
+}());
 
 function testCSS(prop) {
     return prop in document.documentElement.style;
+}
+
+function triggerEvent(el, name) {
+    if (window.CustomEvent) {
+        var event = new CustomEvent(name);
+    } else {
+        var event = document.createEvent('CustomEvent');
+        event.initCustomEvent(name, true, true);
+    }
+    el.dispatchEvent(event);
+}
+
+function extend(out) {
+  out = out || {};
+
+  for (var i = 1; i < arguments.length; i++) {
+    if (!arguments[i])
+      continue;
+
+    for (var key in arguments[i]) {
+      if (arguments[i].hasOwnProperty(key))
+        out[key] = arguments[i][key];
+    }
+  }
+
+  return out;
 }
 
 if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
@@ -152,7 +158,7 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
 	POSTCARD.JS PLUGIN
 
 */
-;(function ( $, window, document, undefined ) {
+;(function ( window, document, undefined ) {
         
     // window and document are passed through as local 
     // variables rather than as globals, because this (slightly) 
@@ -176,8 +182,8 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
     browser = { isOpera : false, isFirefox : false, isSafari : false, isChrome : false, isIE : false },
     pub = {
         init : function(options) {
-            this.element = this[0];
-            this.options = $.extend( {}, defaults, options);
+            this.element = this;
+            this.options = extend( {}, defaults, options);
             this.browser = browser;
             this.browser.isOpera = !!(window.opera && window.opera.version);  // Opera 8.0+
             this.browser.isFirefox = testCSS('MozBoxSizing');                 // FF 0.8+
@@ -187,6 +193,13 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
             this._height = this.options.height = this.element.height;
             this._width = this.options.width = this.element.width;
             this._ctx = this.element.getContext("2d");
+
+            JSONP.init({
+                error: function(ex){
+                    console.error("Failed to load : " + ex.url);
+                }
+            });
+
 
             this._text = [], this._images = [], this._oldtext = [], this._oldimages = [];
             //add background image
@@ -212,10 +225,10 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
                 };
                 this._images.push(newimg);
 
-                $(this.element).trigger('postcardimagesloading');
+                triggerEvent(this.element,'postcardimagesloading');
 
                 var newindex = this._images.length-1;
-                var d = new Date();
+                //var d = new Date();
                 //console.log(d.getSeconds() + ': ' + newindex + ' added');
 
                 //async call, will change 'loaded' to true when it feels like it
@@ -286,17 +299,17 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
                 } else if(obj[i].text !== undefined) {              // ...or else detects text...
                     newtext.push(obj[i]);
                 }
-                else $.error('Parsing error: postcard.add()');      // ...or nothing at all, error
+                else console.error('Parsing error: postcard.add()');      // ...or nothing at all, error
             }
 
             pub.addImages.apply(this, [newimages]);
 
-            $(this.element).on('_loaded', function () {
+            this.element.addEventListener('_loaded', function () {
                 for(var i = 0; i < newtext.length; i++) {
                     var text = newtext[i];
                     pub.addFullText.apply(that, [text.text, text.style, text.x, text.y]);
                 }
-                $(this).off('_loaded');
+                this.removeEventListener('_loaded');
             });
 
         },
@@ -304,10 +317,10 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
 
             var that = this;
             var bigger = function () {
-                    if($(window).outerWidth(true) > breakpoint) { 
+                    if(window.outerWidth > breakpoint) { 
 
                         console.log('bigger');
-                        $(that.element).trigger('postcardresize');
+                        triggerEvent(that.element,'postcardresize');
 
 
                         that.element.width = that._width = that._oldwidth;
@@ -321,15 +334,15 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
 
                         pub.add.apply(that, [oldobj]);
 
-                        $(window).on('resize', smaller);
-                        $(window).off('resize', bigger);
+                        window.addEventListener('resize', smaller);
+                        window.removeEventListener('resize', bigger);
                     }                  
                 },
                 smaller = function () {
-                    if($(window).outerWidth(true) <= breakpoint) { 
+                    if(window.outerWidth <= breakpoint) { 
 
                         console.log('smaller');
-                        $(that.element).trigger('postcardresize');
+                        triggerEvent(that.element,'postcardresize');
 
                         that._oldwidth = that._width;
                         that.element.width = that._width = newwidth;
@@ -342,11 +355,11 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
 
                         pub.add.apply(that, [json]);
 
-                        $(window).on('resize', bigger);
-                        $(window).off('resize', smaller);
+                        window.addEventListener('resize', bigger);
+                        window.removeEventListener('resize', smaller);
                     }
                 };
-            $(window).on('resize', smaller);
+            window.addEventListener('resize', smaller);
 
             // $(window).on('resize', function () {
             //     if($(window).outerWidth(true) <= breakpoint) { 
@@ -441,12 +454,56 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
             this._ctx.fill();
 
         },
+        getImageData : function(args) {
+    
+            var regex_url_test = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+        
+            // If a URL has been specified
+            if(args.url) {
+            
+                // Ensure no problems when using http or http
+                var is_secure = location.protocol === "https:";
+                var server_url = "";
+            
+                // If url specified and is a url + if server is secure when image or user page is
+                if(args.server && regex_url_test.test(args.server) && !(is_secure && args.server.indexOf('http:') == 0)) {
+                    server_url = args.server;
+                } else console.error('no server url');
+            
+                server_url += "?callback=?";
+            
+                JSONP.get( server_url, { url: escape(args.url) }, function(data) {
+                    // Create new, empty image
+                    var return_image = new Image();
+                
+                    return_image.onload = function () {
+                        // Set image dimensions
+                        this.width = data.width;
+                        this.height = data.height;
+
+                        // Return the image
+                        if(typeof(args.success) == typeof(Function)) {
+                            args.success(this);
+                        }
+                    };
+
+                    // When the image has loaded
+                    return_image.src = data.data;
+                });
+            
+            // No URL specified so error
+            } else {
+                if(typeof(args.error) == typeof(Function)) {
+                    args.error(null, "no_url");
+                }
+            }
+        },
         getImage : function (i) {                                               // i corressponds to the index of the new image in _images  
             var that = this,
                 ctx = that._ctx;
 
             if(this._images[i].imgdata === undefined) {             
-                $.getImageData({
+                pri.getImageData.apply(this, [{
                     url: that._images[i].url,
                     server: this.options.proxyURL,
                     success: function(data) {
@@ -455,8 +512,8 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
                         ctx.drawImage(that._images[i].imgdata, that._images[i].x, that._images[i].y, that._images[i].w, that._images[i].h);
                         pri.allImagesLoaded.apply(that);
                     },
-                    error: function(xhr, text_status) { $(that.element).trigger('postcardimageerror', text_status); }
-                }); 
+                    error: function(xhr, text_status) { triggerEvent(that.element,'postcardimageerror'); }
+                }]); 
             } else {
                ctx.drawImage(that._images[i].imgdata, that._images[i].x, that._images[i].y, that._images[i].w, that._images[i].h);
                pri.allImagesLoaded.apply(that); 
@@ -471,8 +528,10 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
                 }
                 else if(i == this._images.length-1 && img.loaded) {
                     this.allImagesLoaded = true;
-                    $(this.element).trigger('_loaded');
-                    $(this.element).trigger('postcardimagesloaded');
+                    triggerEvent(this.element, '_loaded');
+                    triggerEvent(this.element, 'postcardimagesloaded');
+                    //$(this.element).trigger('_loaded');
+                    //$(this.element).trigger('postcardimagesloaded');
                 }
             }                
         },
@@ -533,14 +592,15 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
         }
     };
 
-    $.fn.postcard = function(methodOrOptions) {
+
+    HTMLCanvasElement.prototype.postcard = function(methodOrOptions) {
         if ( pub[methodOrOptions] ) {
             return pub[ methodOrOptions ].apply( this, Array.prototype.slice.call( arguments, 1 ));
         } else if ( typeof methodOrOptions === 'object' || ! methodOrOptions ) {
             return pub.init.apply( this, arguments );
         } else {
-            $.error( 'Method ' +  methodOrOptions + ' does not exist.' );
+            console.error( 'Method ' +  methodOrOptions + ' does not exist.' );
         }    
     };
 
-})( jQuery, window, document );
+})( window, document );
