@@ -98,6 +98,17 @@ $(document).ready(function () {
 		{
 			"url" : "http://placekitten.com/g/550/200",
 			"x" : "450", "y" : "100", "w" : "550", "h" : "200"
+		},
+		{
+			"x1" : "50", "y1" : "50",
+			"x2" : "100", "y2" : "100",
+			"color" : "blue",
+			"weight" : "10"
+		},
+		{
+			"x1" : "100", "y1" : "100",
+			"x2" : "150", "y2" : "50",
+			"color" : "blue"
 		}
 	]);
 
@@ -121,6 +132,10 @@ $(document).ready(function () {
 		{
 			"text" : "smalller", "style" : smallStyle, 
 			"x" : "100", "y" : "250"
+		},
+		{
+			"x1" : "200", "y1" : "200",
+			"x2" : "400", "y2" : "0"		
 		}
 		// },
 		// {
@@ -169,6 +184,17 @@ $(document).ready(function () {
 	$(canvas).on('postcardimagesloaded', function () {
 
 		$('.container').removeClass('generating');
+
+	// canvas.postcard('drawLine',
+	// 	{
+	// 		x1: "50", y1: "50",
+	// 		x2: "100", y2: "100",
+	// 		color: "blue",
+	// 		weight: "50"
+	// 	}
+	// );
+
+
 		//console.log('all images loaded');
 		//$canvas.postcard('addText', "sup", 50, 50);
 		// $canvas.postcard('setFontSize', "50px");

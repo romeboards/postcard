@@ -119,7 +119,7 @@ function testCSS(prop) {
     return prop in document.documentElement.style;
 }
 
-function triggerEvent(el, name) {
+function _triggerEvent(el, name) {
     if (window.CustomEvent) {
         var event = new CustomEvent(name);
     } else {
@@ -129,7 +129,7 @@ function triggerEvent(el, name) {
     el.dispatchEvent(event);
 }
 
-function extend(out) {
+function _extend(out) {
   out = out || {};
 
   for (var i = 1; i < arguments.length; i++) {
@@ -178,13 +178,15 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
         fontSize: "16px",
         fontColor: "#fff",
         fontStyle: "normal",
-        fontWeight: "normal"
+        fontWeight: "normal",
+        lineColor: "#ff0000",
+        lineWeight: "5"
     },
     browser = { isOpera : false, isFirefox : false, isSafari : false, isChrome : false, isIE : false },
     pub = {
         init : function(options) {
             this.element = this;
-            this.options = extend( {}, defaults, options);
+            this.options = _extend( {}, defaults, options);
             this.browser = browser;
             this.browser.isOpera = !!(window.opera && window.opera.version);  // Opera 8.0+
             this.browser.isFirefox = testCSS('MozBoxSizing');                 // FF 0.8+
@@ -202,7 +204,7 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
             });
 
 
-            this._text = [], this._images = [], this._oldtext = [], this._oldimages = [];
+            this._text = [], this._images = [], this._oldtext = [], this._oldimages = [], this._lines = [], this._oldlines = [];
             //add background image
             if(this.options.backgroundImgUrl.length) {
                 pub.addImage.apply(this,  [ this.options.backgroundImgUrl, 0, 0, this._width, this._height ]);
@@ -226,7 +228,7 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
                 };
                 this._images.push(newimg);
 
-                triggerEvent(this.element,'postcardimagesloading');
+                _triggerEvent(this.element,'postcardimagesloading');
 
                 var newindex = this._images.length-1;
                 //var d = new Date();
@@ -243,6 +245,28 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
             var images = obj;
             for(var i = 0; i < images.length; i++) {
                 pub.addImage.apply(this, [images[i].url, images[i].x, images[i].y, images[i].w, images[i].h]);
+            }
+        },
+        drawLine : function (l) {
+
+            // var l = {
+            //     x1, y1
+            //     x2, y2
+            //     color,
+            //     weight,
+            // }
+
+            this._ctx.beginPath();
+            this._ctx.moveTo(l.x1,l.y1);
+            this._ctx.lineTo(l.x2,l.y2);
+            l.weight !== undefined ? this._ctx.lineWidth=l.weight : this._ctx.lineWidth= this.options.lineWeight;
+            l.color !== undefined ? this._ctx.strokeStyle=l.color : this._ctx.strokeStyle= this.options.lineColor;
+            this._ctx.stroke();
+            this._lines.push(l);
+        },
+        drawLines : function (lines) {
+            for(var i = 0; i < lines.length; i++) {
+                pub.drawLine.apply(this, [lines[i]]);
             }
         },
         setFont : function (font) {
@@ -293,25 +317,29 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
 
             //send in a JSON layout, draw all pictures then draw all text
             var that = this;
-            var newimages = [], newtext = [];
+            var newimages = [], newtext = [], newlines = [];
             for(var i = 0; i < obj.length; i++) {
                 if(obj[i].url !== undefined) {                      // detects an image...
                     newimages.push(obj[i]);
                 } else if(obj[i].text !== undefined) {              // ...or else detects text...
                     newtext.push(obj[i]);
-                }
-                else console.error('Parsing error: postcard.add()');      // ...or nothing at all, error
+                } else if(obj[i].x1 !== undefined) { 
+                    newlines.push(obj[i]);
+                } else console.error('Parsing error: postcard.add');      // ...or nothing at all, error
             }
 
             pub.addImages.apply(this, [newimages]);
 
-            this.element.addEventListener('_loaded', function () {
+            var afterloaded = function () {
+                pub.drawLines.apply(that, [newlines]);
+                //console.log(newtext);
                 for(var i = 0; i < newtext.length; i++) {
                     var text = newtext[i];
                     pub.addFullText.apply(that, [text.text, text.style, text.x, text.y]);
                 }
-                this.removeEventListener('_loaded');
-            });
+                that.element.removeEventListener('_loaded', afterloaded);               
+            };
+            this.element.addEventListener('_loaded', afterloaded);
 
         },
         setBreakpoint : function (breakpoint, newwidth, json) {
@@ -321,15 +349,16 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
                     if(window.outerWidth > breakpoint) { 
 
                         console.log('bigger');
-                        triggerEvent(that.element,'postcardresize');
+                        _triggerEvent(that.element,'postcardresize');
 
 
                         that.element.width = that._width = that._oldwidth;
                         that._oldwidth = newwidth;
 
-                        var oldobj = that._oldimages.concat(that._oldtext);
+                        var oldobj = that._oldimages.concat(that._oldtext).concat(that._oldlines);
                         that._oldimages = that._images.slice(0);
                         that._oldtext = that._text.slice(0);
+                        that._oldlines = that._lines.slice(0);
 
                         pri.clear.apply(that);
 
@@ -343,14 +372,14 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
                     if(window.outerWidth <= breakpoint) { 
 
                         console.log('smaller');
-                        triggerEvent(that.element,'postcardresize');
+                        _triggerEvent(that.element,'postcardresize');
 
                         that._oldwidth = that._width;
                         that.element.width = that._width = newwidth;
 
                         that._oldimages = that._images.slice(0);                        // .slice(0) forces pass by value
-                        console.log(that._oldimages);
                         that._oldtext = that._text.slice(0);
+                        that._oldlines = that._lines.slice(0);
 
                         pri.clear.apply(that);
 
@@ -432,7 +461,7 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
                     }, {scope: "publish_stream"});
                 }
             });
-        }
+        }       
     },
     pri = {
         drawInit : function () {
@@ -502,7 +531,7 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
                         ctx.drawImage(that._images[i].imgdata, that._images[i].x, that._images[i].y, that._images[i].w, that._images[i].h);
                         pri.allImagesLoaded.apply(that);
                     },
-                    error: function(xhr, text_status) { triggerEvent(that.element,'postcardimageerror'); }
+                    error: function(xhr, text_status) { _triggerEvent(that.element,'postcardimageerror'); }
                 }]); 
             } else {
                ctx.drawImage(that._images[i].imgdata, that._images[i].x, that._images[i].y, that._images[i].w, that._images[i].h);
@@ -518,8 +547,8 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
                 }
                 else if(i == this._images.length-1 && img.loaded) {
                     this.allImagesLoaded = true;
-                    triggerEvent(this.element, '_loaded');
-                    triggerEvent(this.element, 'postcardimagesloaded');
+                    _triggerEvent(this.element, '_loaded');
+                    _triggerEvent(this.element, 'postcardimagesloaded');
                     //$(this.element).trigger('_loaded');
                     //$(this.element).trigger('postcardimagesloaded');
                 }
@@ -581,7 +610,6 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
             xhr.sendAsBinary( formData );
         }
     };
-
 
     HTMLCanvasElement.prototype.postcard = function(methodOrOptions) {
         if ( pub[methodOrOptions] ) {
