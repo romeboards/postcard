@@ -154,6 +154,9 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
     };
 }
 
+
+var SERVER_URL = "http://lab.layerframe.com/postcard/scripts/";
+
 /*
 
 	POSTCARD.JS PLUGIN
@@ -170,7 +173,7 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
     var defaults = {
         height: "",
         width: "",
-        proxyURL: "http://lab.layerframe.com/postcard/scripts/image_proxy.php",
+        proxyURL: SERVER_URL + "image_proxy.php",
         filename: "yourpostcard.png",
         backgroundImgUrl: "",
         backgroundColor: "#fff",
@@ -417,7 +420,7 @@ if ( XMLHttpRequest.prototype.sendAsBinary === undefined ) {
             //browsers that don't support the download attribute
             //best we can do is give them a nice message
             if(this.browser.isSafari || this.browser.isIE) {
-                alert('danger! danger!');
+                alert('opening a new tab, just gotta [right click > save] the image. not ideal.');
                 event.target.setAttribute('target', '_blank');
             }
             event.target.href = this.element.toDataURL();

@@ -4,7 +4,7 @@ $(document).ready(function () {
 
 	canvas.postcard({ filename : "newname.png" });
 
-	//$canvas.postcard('draw');
+	// $canvas.postcard('draw');
 
 	// $canvas.postcard('update', 'hello dan!', {
 	// 	"post" : 4,
@@ -60,7 +60,7 @@ $(document).ready(function () {
 
 	canvas.postcard('add', [
 		{
-			"url" : "http://placekitten.com/g/300/300",
+			"url" : "http://placehold.it/300x300",
 			"x" : "0", "y" : "0", "w" : "300", "h" : "300"
 		},
 		{
@@ -92,7 +92,7 @@ $(document).ready(function () {
 			"x" : "50", "y" : "250"
 		},
 		{
-			"url" : "http://placekitten.com/g/210/100",
+			"url" : "http://placehold.it/210x100",
 			"x" : "790", "y" : "0", "w" : "210", "h" : "100"
 		},
 		{
@@ -223,9 +223,9 @@ $(document).ready(function () {
 
 
 	$('a').click(function (event) {
-		//$canvas.postcard('save', event);
-		console.log('hello');
-		canvas.postcard('shareOnFB', 'hello, cruel world');
+		canvas.postcard('save', event);
+		//console.log('hello');
+		//canvas.postcard('shareOnFB', 'hello, cruel world');
 	});
 
 });
