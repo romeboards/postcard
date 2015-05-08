@@ -8,6 +8,12 @@ body {
     color: #333;
 }
 
+a {
+    padding: 5px;
+    border: 1px solid #000;
+    margin: 5px;
+}
+
 canvas {
     position: relative;
     display: block;

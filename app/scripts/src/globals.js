@@ -1,4 +1,4 @@
-'use strict';
+/* NOTE: had to disable 'use strict' for the JSONP library */
 
 /*
 Copyright (c) 2011, Daniel Guerrero
@@ -79,10 +79,10 @@ var JSONP = (function(){
             head = document.getElementsByTagName('head')[0];
         }
         head.appendChild( script );
-    }
+    };
     function encode(str) {
         return encodeURIComponent(str);
-    }
+    };
     function jsonp(url, params, callback, callbackName) {
         var query = (url||'').indexOf('?') === -1 ? '?' : '&', key;
 
@@ -95,7 +95,6 @@ var JSONP = (function(){
                 query += encode(key) + "=" + encode(params[key]) + "&";
             }
         }   
-
         window[ uniqueName ] = function(data){
             callback(data);
             try {
@@ -106,10 +105,10 @@ var JSONP = (function(){
  
         load(url + query + callbackName + '=' + uniqueName);
         return uniqueName;
-    }
+    };
     function setDefaults(obj){
         config = obj;
-    }
+    };
     return {
         get:jsonp,
         init:setDefaults

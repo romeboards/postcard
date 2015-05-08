@@ -22,7 +22,7 @@ function OrderedMap() {
  * @returns {Error} if not found
  */
 OrderedMap.prototype.assert = function(key) {
-  if(!(key in this.map)) throw new Error('key does not exist');
+  if(!(key in this.map)) throw new Error('key: "' + key + '" does not exist');
 };
 /**
  * Number of objects in the OrderedMap

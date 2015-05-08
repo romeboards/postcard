@@ -59,6 +59,12 @@ function Postcard( element, options ) {
   this.selection = null;      /* current selection - pointer to the PostcardObject */
   var currentState = this;            /* closure for events and rendering loop */
 
+  /***** set proxy url for image objects and initialize JSONP *****/
+  PostcardImageObject.prototype.proxyURL = this.opts.proxyURL;
+  JSONP.init({
+    error: function(ex){ console.error("Failed to load : " + ex.url); }
+  });  
+
   /***** rendering stack *****/
   this.renderingStack = new OrderedMap();
 
@@ -67,7 +73,7 @@ function Postcard( element, options ) {
 
   /***** events *****/
   this.elm.addEventListener("forcerender", function(e) {
-    currentState.forceRender();
+    currentState.valid = false;
   });
 
   /***** private methods *****/
@@ -77,7 +83,7 @@ function Postcard( element, options ) {
    * @param {Event} e - the click event
    */ 
   var getMouse = function(e) {
-    var element = this.elm, offsetX = 0, offsetY = 0, mx, my;
+    var element = currentState.elm, offsetX = 0, offsetY = 0, mx, my;
     
     // Compute the total offset
     if (element.offsetParent !== undefined) {
@@ -89,8 +95,8 @@ function Postcard( element, options ) {
 
     // Add padding and border style widths to offset
     // Also add the <html> offsets in case there's a position:fixed bar
-    offsetX += this.stylePaddingLeft + this.styleBorderLeft + this.htmlLeft;
-    offsetY += this.stylePaddingTop + this.styleBorderTop + this.htmlTop;
+    offsetX += currentState.stylePaddingLeft + currentState.styleBorderLeft + currentState.htmlLeft;
+    offsetY += currentState.stylePaddingTop + currentState.styleBorderTop + currentState.htmlTop;
 
     mx = e.pageX - offsetX;
     my = e.pageY - offsetY;
@@ -98,21 +104,22 @@ function Postcard( element, options ) {
     // We return a simple javascript object (a hash) with x and y defined
     return {x: mx, y: my};
   };
-
-  /***** privileged methods *****/
   /**
    * Clears the canvas before rerendering.
    */
-  this.clear = function() {
-    this.ctx.clearRect(0, 0, this.width, this.height);
-  };  
+  var clear = function() {
+    currentState.ctx.clearRect(0, 0, currentState.width, currentState.height);
+  };    
+
+  /***** privileged methods *****/
+
   /**
    * Main rendering loop for the Postcard
    */
   this.render = function() {
     if(!this.valid) { 
 
-      this.clear();
+      clear();
 
       // this should iterate through the rendering stack
       this.renderingStack.forEach(function (key, zindex, object) {
@@ -122,26 +129,18 @@ function Postcard( element, options ) {
       this.valid = true;
     }
   };
-  /**
-   * Triggers a fresh rendering.
-   * [TODO] is this necessary?
-   */
-  this.forceRender = function() {
-    this.valid = false;
-  };
 
 } /* end of Postcard() */
 
 /***** public methods *****/
 /**
- * Select an object on the postcard with its ID
- * @param {String} id - Unique identifier for the object
- * @returns {PostcardObject|Error} - The object in question or an Error if not found
- */
- Postcard.prototype.select = function(id) {
+* Select an object on the postcard with its ID
+* @param {String} id - Unique identifier for the object
+* @returns {PostcardObject|Error} - The object in question or an Error if not found
+*/
+Postcard.prototype.select = function(id) {
   return this.renderingStack.get(id);
- }
-
+}
 /**
  * Add a generic object (shape)
  * @param {String} id - Unique identifier for the object
@@ -194,3 +193,39 @@ Postcard.prototype.addImage = function(id, url, zindex, options) {
   var newImageObject = new PostcardImageObject(_url, this.ctx, _options);
   this.renderingStack.add(_id, _zindex, newImageObject);
 };
+
+/** 
+ * Export the Postcard and trigger a save prompt
+ * @param {Event} event - The click event
+ */
+Postcard.prototype.save = function(event) { 
+
+  // var data = this.element.toDataURL("image/png");
+  // data = data.substr(data.indexOf(',') + 1).toString();
+  // var dataInput = document.createElement("input") ;
+  // dataInput.setAttribute("name", 'imgdata') ;
+  // dataInput.setAttribute("value", data);
+
+  // var nameInput = document.createElement("input") ;
+  // nameInput.setAttribute("name", 'name') ;
+  // nameInput.setAttribute("value",this.options.filename + '.png');
+
+  // var myForm = document.createElement("form");
+  // myForm.method = 'post';
+  // myForm.action = this.options.saveURL;
+  // myForm.appendChild(dataInput);
+  // myForm.appendChild(nameInput);
+
+  // document.body.appendChild(myForm);
+  // myForm.submit();
+  // document.body.removeChild(myForm);
+
+  //browsers that don't support the download attribute
+  //best we can do is give them a nice message
+  if(this.browser.isSafari || this.browser.isIE) {
+    alert('opening a new tab, just gotta [right click > save] the image. not ideal.');
+    event.target.setAttribute('target', '_blank');
+  }
+  event.target.href = this.elm.toDataURL();
+  event.target.download = this.opts.filename;
+}
