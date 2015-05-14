@@ -57,6 +57,8 @@ function Postcard( element, options ) {
   this.valid = false;         /* applies only if canvas has been changed in some way, prevents from pointless redrawing */
   this.dragging = false;      /* keeps track of when an element on the canvas is being dragged */
   this.selection = null;      /* current selection - pointer to the PostcardObject */
+  this.dragoffx = 0;          // See mousedown and mousemove events for explanation
+  this.dragoffy = 0;  
   var currentState = this;            /* closure for events and rendering loop */
 
   /***** set proxy url for image objects and initialize JSONP *****/
@@ -75,6 +77,63 @@ function Postcard( element, options ) {
   this.elm.addEventListener("forcerender", function(e) {
     currentState.valid = false;
   });
+  //fixes a problem where double clicking causes text to get selected on the canvas
+  this.elm.addEventListener('selectstart', function(e) { e.preventDefault(); return false; }, false);
+  // Up, down, and move are for dragging
+  this.elm.addEventListener('mousedown', function(e) {
+
+    var mouse = getMouse(e);
+    var mx = mouse.x;
+    var my = mouse.y;
+    var topZindex = 0; // keeps track of the highest z-index found so far
+    var tempSelection = null;
+
+
+    console.log("mouse: " + mx + " " + my);
+
+    currentState.renderingStack.forEach(function(key, zindex, object) {
+      if(object.contains(mx,my) && zindex >= topZindex) { // if a hit is detected and its at the top (so far)
+        tempSelection = object;
+      }      
+    });
+
+    if(tempSelection) {
+      currentState.dragoffx = mx - tempSelection.x;
+      currentState.dragoffy = my - tempSelection.y;
+      currentState.dragging = true;
+      currentState.selection = tempSelection;
+      currentState.valid = false;
+      return;
+    }
+
+    // havent returned means we have failed to select anything.
+    // If there was an object selected, we deselect it
+    if (currentState.selection) {
+      currentState.selection = null;
+      currentState.valid = false; // Need to clear the old selection border
+    }
+  }, false);
+
+  this.elm.addEventListener('mousemove', function(e) {
+    if (currentState.dragging){
+      var mouse = getMouse(e);
+      // We don't want to drag the object by its top-left corner, we want to drag it
+      // from where we clicked. Thats why we saved the offset and use it here
+      currentState.selection.x = mouse.x - currentState.dragoffx;
+      currentState.selection.y = mouse.y - currentState.dragoffy;   
+      currentState.valid = false; // Something's dragging so we must redraw
+    }
+  }, true);
+  this.elm.addEventListener('mouseup', function(e) {
+    currentState.dragging = false;
+  }, true);
+  // // double click for making new shapes
+  // this.elm.addEventListener('dblclick', function(e) {
+  //   var mouse = getMouse(e);
+  //   //myState.addShape(new Shape(mouse.x - 10, mouse.y - 10, 20, 20, 'rgba(0,255,0,.6)'));
+  // }, true);
+
+
 
   /***** private methods *****/
   /**
@@ -126,6 +185,16 @@ function Postcard( element, options ) {
         //console.log("[" + key + "] at: " + zindex);
         object.draw();
       });
+
+      // draw selection
+      // right now this is just a stroke along the edge of the selected Shape
+      if (this.selection != null) {
+        this.ctx.strokeStyle = '#CC0000';
+        this.ctx.lineWidth = '2';
+        var s = this.selection;
+        this.ctx.strokeRect(s.x, s.y, s.w, s.h);
+      }
+
       this.valid = true;
     }
   };
@@ -134,12 +203,19 @@ function Postcard( element, options ) {
 
 /***** public methods *****/
 /**
-* Select an object on the postcard with its ID
+* Get an object on the postcard with its ID
 * @param {String} id - Unique identifier for the object
 * @returns {PostcardObject|Error} - The object in question or an Error if not found
 */
-Postcard.prototype.select = function(id) {
+Postcard.prototype.get = function(id) {
   return this.renderingStack.get(id);
+}
+/**
+* Get the current selection on the postcard, if there is one
+* @returns {PostcardObject|null} - The object in question or null
+*/
+Postcard.prototype.getSelection = function() {
+  return this.selection;
 }
 /**
  * Add a generic object (shape)

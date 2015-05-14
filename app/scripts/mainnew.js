@@ -19,41 +19,65 @@ $(document).ready(function () {
 
   var sampleURL = 'http://vignette3.wikia.nocookie.net/animalcrossing/images/b/bd/Grey-wolf_565_600x450.jpg';
   var sampleURL2 = 'https://tpwd.texas.gov/huntwild/wild/images/mammals/coyote2.jpg';
+  var sampleURL3 = 'http://cdn.cultofmac.com/wp-content/uploads/2012/07/mountainlion1.jpg';
 
   //postcard.addImage("sampleImageA", sampleURL);
   //postcard.addImage("sampleImageZ");
   //postcard.addImage("sampleImageB", sampleURL, 0);
   //postcard.addImage("sampleImageC", sampleURL, 2, {});
   postcard.addImage("sampleImageD", sampleURL, { x: 50, y: 50, w: 250, h: 250 });
-  //postcard.addImage("sampleImageF", sampleURL2, 5, { x: 100, y: 100, w: 100, h: 100 });
+  postcard.addImage("sampleImageF", sampleURL2, 5, { x: 100, y: 100, w: 100, h: 100 });
   //postcard.addImage("sampleImageE", sampleURL2, { y: "200" });
   //var newImage = new PostcardImageObject('http://vignette3.wikia.nocookie.net/animalcrossing/images/b/bd/Grey-wolf_565_600x450.jpg', { w: 100, h: 100, x: 0, y: 0 });
   //this.renderingStack.add("background", 0, newImage);
 
   //console.log(this.renderingStack.get("background"));
 
-  var obj = postcard.select("sampleImageD");
-  //var fail = postcard.select("bullshit");
+ // var obj = postcard.get("sampleImageD");
+  var obj;
+
+  $('a').click(function () {
+    obj = postcard.getSelection() || postcard.get("sampleImageD");
+  });
 
   $('a#rotate').click(function () {
-    //console.log(obj.getRotation());
-
-    //obj.rotation = 90;
-
     obj.setRotation(obj.getRotation() + 90);
   });
 
-  $('a#get').click(function () {
-    var img = obj.getImageData();
-    var newImg = Filters.duotone(img, "#F20A99", "#3CF20A");
+  $('a#filterA').click(function () {
+    var img = obj.getOriginalImageData();
+    var newImg = Filters.duotone(img, "#4B917D", "#CDF564");  //dark, light
     obj.setImageData(newImg);
   });
+  $('a#filterB').click(function () {
+    var img = obj.getOriginalImageData();
+    var newImg = Filters.duotone(img, "#1E3264", "#C3F0C8");  //dark, light
+    obj.setImageData(newImg);
+  }); 
+  $('a#filterC').click(function () {
+    var img = obj.getOriginalImageData();
+    var newImg = Filters.duotone(img, "#503750", "#FFC864");  //dark, light
+    obj.setImageData(newImg);
+  });     
 
+  $('a#revert').click(function () {
+    obj.revert();
+  });
+
+  $('a#change').click(function () {
+    obj.changeURL(sampleURL3);
+  });  
 
   $('a#save').click(function (event) {
     postcard.save(event);
-    //console.log('hello');
-    //canvas.postcard('shareOnFB', 'hello, cruel world');
   });
+
+  $('a#scale').click(function (event) {
+    $('#canvas-postcard').attr("width", 150);
+    $('#canvas-postcard').attr("height", 150);
+    postcard.ctx.scale(.5, .5);
+    postcard.valid =false;
+  });
+
 
 });

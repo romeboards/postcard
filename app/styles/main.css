@@ -18,7 +18,7 @@ canvas {
     position: relative;
     display: block;
     margin: 0 auto;
-    z-index: 1;
+    z-index: 2;
     border: 1px solid red;
 }
 
@@ -31,7 +31,7 @@ canvas {
 
 }
 
-.container:after {
+/*.container:after {
     display: block;
     content: 'loading';
     position: absolute;
@@ -46,8 +46,8 @@ canvas {
     line-height: 300px;
     opacity: 0;    
     -webkit-transition: all 500ms ease-out;
-}
+}*/
 
-.container.generating:after {
+/*.container.generating:after {
     opacity: 1;
-}
+}*/

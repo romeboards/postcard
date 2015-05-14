@@ -6,4 +6,5 @@ bower_components
 .DS_Store
 server
 npm-debug.log
-utilities/import-tool/sample-files/intraday_20150131.json
+app/scripts/out
+php

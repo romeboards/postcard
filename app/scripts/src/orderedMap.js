@@ -133,7 +133,11 @@ OrderedMap.prototype.changeOrder = function(key, zindex) {
  * @returns a new Error if the key does not exist
  */
 OrderedMap.prototype.toStart = function(key) {
-  this.changeOrder(key,0);
+  var value = this.get(key);
+  this.remove(key);
+  this._karray.splice(0, 0, key);
+  this._zarray.splice(0, 0, 0);
+  this.map[key] = value;  
 };
 /**
  * Bring an object to the end of the OrderMap. 
