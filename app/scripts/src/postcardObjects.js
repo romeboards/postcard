@@ -148,6 +148,7 @@ function PostcardImageObject(url, ctx, options) {
 
   /**
    * Happens whenever image.src changes
+   * @private
    */
   var onImageRefresh = function() {
     console.log('imagerefresh');
@@ -155,6 +156,10 @@ function PostcardImageObject(url, ctx, options) {
   };
 
   /***** privileged methods *****/
+  /**
+   * Change the source URL of the ImageObject
+   * @param {String} url - the new URL 
+   */
   this.changeURL = function(url) {
     init(url);
   }
@@ -185,6 +190,7 @@ PostcardImageObject.prototype.draw = function() {
  * Revert any changes made to the image
  */
 PostcardImageObject.prototype.revert = function() {
+  if(!this.opts.keepOriginal) throw new Error("original image wasn't preserved");
   this._ctx.putImageData(this.origImgData, 0, 0);
   this.imgElm.src = this._canvas.toDataURL();
 };

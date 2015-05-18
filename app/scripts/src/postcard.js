@@ -15,6 +15,7 @@ function Postcard( element, options ) {
     proxyURL: SERVER_URL + "image_proxy.php",
     filename: "yourpostcard.png",
     renderInterval: "30",
+    allowSelections: false,
     backgroundImgUrl: "",
     backgroundColor: "#fff",
     fontFamily: "sans-serif",
@@ -57,9 +58,9 @@ function Postcard( element, options ) {
   this.valid = false;         /* applies only if canvas has been changed in some way, prevents from pointless redrawing */
   this.dragging = false;      /* keeps track of when an element on the canvas is being dragged */
   this.selection = null;      /* current selection - pointer to the PostcardObject */
-  this.dragoffx = 0;          // See mousedown and mousemove events for explanation
+  this.dragoffx = 0;          /* See mousedown and mousemove events for explanation */
   this.dragoffy = 0;  
-  var currentState = this;            /* closure for events and rendering loop */
+  var currentState = this;    /* closure for events and rendering loop */
 
   /***** set proxy url for image objects and initialize JSONP *****/
   PostcardImageObject.prototype.proxyURL = this.opts.proxyURL;
@@ -77,55 +78,20 @@ function Postcard( element, options ) {
   this.elm.addEventListener("forcerender", function(e) {
     currentState.valid = false;
   });
+
   //fixes a problem where double clicking causes text to get selected on the canvas
   this.elm.addEventListener('selectstart', function(e) { e.preventDefault(); return false; }, false);
-  // Up, down, and move are for dragging
-  this.elm.addEventListener('mousedown', function(e) {
 
-    var mouse = getMouse(e);
-    var mx = mouse.x;
-    var my = mouse.y;
-    var topZindex = 0; // keeps track of the highest z-index found so far
-    var tempSelection = null;
-
-
-    console.log("mouse: " + mx + " " + my);
-
-    currentState.renderingStack.forEach(function(key, zindex, object) {
-      if(object.contains(mx,my) && zindex >= topZindex) { // if a hit is detected and its at the top (so far)
-        tempSelection = object;
-      }      
-    });
-
-    if(tempSelection) {
-      currentState.dragoffx = mx - tempSelection.x;
-      currentState.dragoffy = my - tempSelection.y;
-      currentState.dragging = true;
-      currentState.selection = tempSelection;
-      currentState.valid = false;
-      return;
-    }
-
-    // havent returned means we have failed to select anything.
-    // If there was an object selected, we deselect it
-    if (currentState.selection) {
-      currentState.selection = null;
-      currentState.valid = false; // Need to clear the old selection border
-    }
+  this.elm.addEventListener('mousedown', function(e) { 
+    console.log("mouse");
+    currentState.dragging = true;
+    if(currentState.opts.allowSelections) selectionMouseDownEvent(e); 
   }, false);
-
-  this.elm.addEventListener('mousemove', function(e) {
-    if (currentState.dragging){
-      var mouse = getMouse(e);
-      // We don't want to drag the object by its top-left corner, we want to drag it
-      // from where we clicked. Thats why we saved the offset and use it here
-      currentState.selection.x = mouse.x - currentState.dragoffx;
-      currentState.selection.y = mouse.y - currentState.dragoffy;   
-      currentState.valid = false; // Something's dragging so we must redraw
-    }
+  this.elm.addEventListener('mousemove', function(e) { 
+    if(currentState.opts.allowSelections) selectionMouseMoveEvent(e); 
   }, true);
-  this.elm.addEventListener('mouseup', function(e) {
-    currentState.dragging = false;
+  this.elm.addEventListener('mouseup', function(e) { 
+    currentState.dragging = false; 
   }, true);
   // // double click for making new shapes
   // this.elm.addEventListener('dblclick', function(e) {
@@ -164,44 +130,133 @@ function Postcard( element, options ) {
     return {x: mx, y: my};
   };
   /**
-   * Clears the canvas before rerendering.
+   * Mouse down event to use if selection is enabled
+   * @private
+   * @param {Event} e - the click event
    */
-  var clear = function() {
-    currentState.ctx.clearRect(0, 0, currentState.width, currentState.height);
-  };    
+  var selectionMouseDownEvent = function(e) {
+    var mouse = getMouse(e);
+    var mx = mouse.x;
+    var my = mouse.y;
+    var topZindex = 0;        /* keeps track of the highest z-index found so far */
+    var tempSelection = null;
 
-  /***** privileged methods *****/
+    currentState.renderingStack.forEach(function(key, zindex, object) {
+      /* if a hit is detected and its at the top (so far) */
+      if(object.contains(mx,my) && zindex >= topZindex) { 
+        tempSelection = object;
+      }      
+    });
 
-  /**
-   * Main rendering loop for the Postcard
-   */
-  this.render = function() {
-    if(!this.valid) { 
-
-      clear();
-
-      // this should iterate through the rendering stack
-      this.renderingStack.forEach(function (key, zindex, object) {
-        //console.log("[" + key + "] at: " + zindex);
-        object.draw();
-      });
-
-      // draw selection
-      // right now this is just a stroke along the edge of the selected Shape
-      if (this.selection != null) {
-        this.ctx.strokeStyle = '#CC0000';
-        this.ctx.lineWidth = '2';
-        var s = this.selection;
-        this.ctx.strokeRect(s.x, s.y, s.w, s.h);
-      }
-
-      this.valid = true;
+    if(tempSelection) {
+      currentState.selection = tempSelection;
+      currentState.valid = false;
+      return;
     }
+
+    /* havent returned means we have failed to select anything.
+     * If there was an object selected, we deselect it
+     */
+    if (currentState.selection) {
+      currentState.selection = null;
+      currentState.valid = false;       /* Need to clear the old selection border */
+    }    
+  };
+  /**
+   * Mouse move event to use if selection is enabled
+   * @private
+   * @param {Event} e - the click event
+   */  
+  var selectionMouseMoveEvent = function(e) {
+    if (currentState.dragging){
+      var mouse = getMouse(e);
+      // We don't want to drag the object by its top-left corner, we want to drag it
+      // from where we clicked. Thats why we saved the offset and use it here
+      currentState.selection.x = mouse.x - currentState.dragoffx;
+      currentState.selection.y = mouse.y - currentState.dragoffy;   
+      currentState.valid = false; // Something's dragging so we must redraw
+    }    
   };
 
-} /* end of Postcard() */
+  /***** privileged methods *****/
+  /** 
+   * Creates a wrapper function then stores a reference to it so we can clear it later
+   * @param {Function} userFunc - User defined function with x,y as params
+   */
+  this.onMouseDown = function(userFunc) { 
+    this.userMouseDown = function(e) { 
+      var mouse = getMouse(e);
+      userFunc(mouse.x, mouse.y); 
+    };
+    this.elm.addEventListener('mousedown', this.userMouseDown, false);
+  };
+  /** 
+   * Creates a wrapper function then stores a reference to it so we can clear it later  
+   * @param {Function} userFunc - User defined function with x,y as params
+   */
+  this.onMouseMove = function(userFunc) { 
+    this.userMouseMove = function(e) { 
+      var mouse = getMouse(e);
+      userFunc(mouse.x, mouse.y); 
+    };
+    this.elm.addEventListener('mousemove', this.userMouseMove, true);
+  };  
+  /** 
+   * Creates a wrapper function then stores a reference to it so we can clear it later    
+   * @param {Function} userFunc - User defined function with x,y as params
+   */
+  this.onMouseUp = function(userFunc) { 
+    this.userMouseUp = function(e) { 
+      var mouse = getMouse(e);
+      userFunc(mouse.x, mouse.y); 
+    };
+    this.elm.addEventListener('mouseup', this.userMouseUp, true);
+  }; 
+  /** 
+   * Clear *user-defined* mouse events
+   */  
+  this.clearMouseEvents = function() {
+    if(this.userMouseDown) this.elm.removeEventListener('mousedown', this.userMouseDown, false);
+    if(this.userMouseMove) this.elm.removeEventListener('mousemove', this.userMouseMove, true);
+    if(this.userMouseUp) this.elm.removeEventListener('mouseup', this.userMouseUp, true);
+  };
+
+
+}; /* end of Postcard() */
 
 /***** public methods *****/
+/**
+ * Clears the canvas before rerendering.
+ */
+Postcard.prototype.clear = function() {
+  this.ctx.clearRect(0, 0, this.width, this.height);
+};  
+/**
+ * Main rendering loop for the Postcard
+ */
+Postcard.prototype.render = function() {
+  if(!this.valid) { 
+
+    this.clear();
+
+    // this should iterate through the rendering stack
+    this.renderingStack.forEach(function (key, zindex, object) {
+      //console.log("[" + key + "] at: " + zindex);
+      object.draw();
+    });
+
+    // draw selection
+    // right now this is just a stroke along the edge of the selected Shape
+    if (this.selection != null) {
+      this.ctx.strokeStyle = '#CC0000';
+      this.ctx.lineWidth = '2';
+      var s = this.selection;
+      this.ctx.strokeRect(s.x, s.y, s.w, s.h);
+    }
+
+    this.valid = true;
+  }
+};
 /**
 * Get an object on the postcard with its ID
 * @param {String} id - Unique identifier for the object
@@ -209,14 +264,14 @@ function Postcard( element, options ) {
 */
 Postcard.prototype.get = function(id) {
   return this.renderingStack.get(id);
-}
+};
 /**
 * Get the current selection on the postcard, if there is one
 * @returns {PostcardObject|null} - The object in question or null
 */
 Postcard.prototype.getSelection = function() {
   return this.selection;
-}
+};
 /**
  * Add a generic object (shape)
  * @param {String} id - Unique identifier for the object
@@ -252,7 +307,7 @@ Postcard.prototype.addImage = function(id, url, zindex, options) {
   var _id = id, _url = url,
       _zindex = 0, _options = {};
 
-  if (typeof arguments[1] !== "string") {
+  if(typeof arguments[1] !== "string") {
     throw new Error("no url specified? id: " + _id);
   }
 
@@ -304,4 +359,4 @@ Postcard.prototype.save = function(event) {
   }
   event.target.href = this.elm.toDataURL();
   event.target.download = this.opts.filename;
-}
+};
