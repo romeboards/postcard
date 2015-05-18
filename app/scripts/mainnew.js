@@ -6,7 +6,7 @@ $(document).ready(function () {
   var postcardOptions = {
     // filename: "hidan.png",
     // backgroundColor: "#000",
-    // allowSelections: true
+    allowSelections: true
   };
 
   var postcard = new Postcard(canvas, postcardOptions);
@@ -53,8 +53,15 @@ $(document).ready(function () {
     }
   };
 
-  postcard.onMouseDown(dragMouseDown);
-  postcard.onMouseMove(dragMouseMove);
+  //postcard.onMouseDown(dragMouseDown);
+  //postcard.onMouseMove(dragMouseMove);
+
+
+  postcard.addText("textsampleA", "HELLO", 10, { x: 0, y: 25, size: "24px" });
+  postcard.addText("textsampleB", "I'd like to buy the world a coke.", 10, { x: 25, y: 75, family: "Times New Roman", size: "40px" });
+  postcard.addText("textsampleC", "Something Else", 10, { x: 100, y: 200, fill: "red" });
+  postcard.addText("textsampleD", "Last Something", 10, { x: 10, y: 260, fontString: "green italic bold 30px Cutive Mono" });
+
 
   // postcard.addObject("sampleA");
   // postcard.addObject("sampleB", 0);

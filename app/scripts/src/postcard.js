@@ -149,6 +149,8 @@ function Postcard( element, options ) {
     });
 
     if(tempSelection) {
+      currentState.dragoffx = mouse.x - tempSelection.x;
+      currentState.dragoffy = mouse.y - tempSelection.y;      
       currentState.selection = tempSelection;
       currentState.valid = false;
       return;
@@ -168,7 +170,7 @@ function Postcard( element, options ) {
    * @param {Event} e - the click event
    */  
   var selectionMouseMoveEvent = function(e) {
-    if (currentState.dragging){
+    if (currentState.dragging) {
       var mouse = getMouse(e);
       // We don't want to drag the object by its top-left corner, we want to drag it
       // from where we clicked. Thats why we saved the offset and use it here
@@ -251,7 +253,8 @@ Postcard.prototype.render = function() {
       this.ctx.strokeStyle = '#CC0000';
       this.ctx.lineWidth = '2';
       var s = this.selection;
-      this.ctx.strokeRect(s.x, s.y, s.w, s.h);
+      if(s.type == "text") this.ctx.strokeRect(s.x, s.y-s.h, s.w, s.h);
+      else this.ctx.strokeRect(s.x, s.y, s.w, s.h);
     }
 
     this.valid = true;
@@ -311,20 +314,54 @@ Postcard.prototype.addImage = function(id, url, zindex, options) {
     throw new Error("no url specified? id: " + _id);
   }
 
+  // this is convoluted. should be done better.
   if(arguments.length > 3) {
     _zindex = arguments[2];
     _options = arguments[3];
   } else if(arguments.length === 3) {
     if (typeof arguments[2] == "number") _zindex = arguments[2];
     else _options = arguments[2];
-  } 
+  } else {
+    // less than 3
+  }
 
   console.log("adding: " + _id + " at z-index: " + _zindex + " with options: ", _options);
 
   var newImageObject = new PostcardImageObject(_url, this.ctx, _options);
   this.renderingStack.add(_id, _zindex, newImageObject);
 };
+/**
+ * Add an image
+ * @param {String} id - Unique identifier for the object
+ * @param {Srting} url - URL to the image
+ * @param {Number} [zindex] - Z-index for the object. Defaults to 0
+ * @param {Object} [options] - Defines placement and content. See PostcardObject contructor
+ */
+Postcard.prototype.addText = function(id, text, zindex, options) {
 
+  var _id = id, _text = text,
+      _zindex = 0, _options = {};
+
+  if(typeof arguments[1] !== "string") {
+    throw new Error("no text specified? id: " + _id);
+  }
+
+  // this is convoluted. should be done better.
+  if(arguments.length > 3) {
+    _zindex = arguments[2];
+    _options = arguments[3];
+  } else if(arguments.length === 3) {
+    if (typeof arguments[2] == "number") _zindex = arguments[2];
+    else _options = arguments[2];
+  } else {
+    // less than 3
+  }
+
+  console.log("adding: " + _id + " at z-index: " + _zindex + " with options: ", _options);
+
+  var newTextObject = new PostcardTextObject(_text, this.ctx, _options);
+  this.renderingStack.add(_id, _zindex, newTextObject);
+};
 /** 
  * Export the Postcard and trigger a save prompt
  * @param {Event} event - The click event

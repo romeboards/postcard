@@ -14,7 +14,7 @@ function PostcardObject(type, ctx, options) {
     y: 0,
     w: 50,
     h: 50,
-    fill: 'steelblue',
+    fill: "steelblue",
     selectable: false,
     zindex: 0,
     rotation: 0
@@ -23,10 +23,10 @@ function PostcardObject(type, ctx, options) {
   this.ctx = ctx;
   this.type = type;
   this.opts = _extend( {}, defaults, options);  
-  this.x = parseInt(this.opts.x);                           /* for brevitys sake */
-  this.y = parseInt(this.opts.y);
-  this.w = parseInt(this.opts.w);
-  this.h = parseInt(this.opts.h);
+  this.x = parseInt(this.opts.x, 10);                           /* for brevitys sake */
+  this.y = parseInt(this.opts.y, 10);
+  this.w = parseInt(this.opts.w, 10);
+  this.h = parseInt(this.opts.h, 10);
 };
 
 /**
@@ -54,17 +54,17 @@ PostcardObject.prototype.contains = function(mx, my) {
  */
 PostcardObject.prototype.update = function(newOptions) {
   this.opts = _extend( {}, this.opts, newOptions);  
-  this.x = parseInt(this.opts.x);                           /* for brevitys sake */
-  this.y = parseInt(this.opts.y);
-  this.w = parseInt(this.opts.w);
-  this.h = parseInt(this.opts.h);
+  this.x = parseInt(this.opts.x, 10);                           /* for brevitys sake */
+  this.y = parseInt(this.opts.y, 10);
+  this.w = parseInt(this.opts.w, 10);
+  this.h = parseInt(this.opts.h, 10);
 };
 
 
 PostcardImageObject.prototype = new PostcardObject();
 PostcardImageObject.prototype.constructor = PostcardImageObject;
 /**
- * Represents an internal object within the Postcard. Can be selected, redrawn, modified.
+ * Represents an internal object that deals with images
  * @constructor
  * @extends PostcardObject
  * @param {String} url - URL to the image (relative or absolute)
@@ -121,8 +121,8 @@ function PostcardImageObject(url, ctx, options) {
 
           console.log("onload event");
 
-          this.width = curr._canvas.width = rawData.width;
-          this.height = curr._canvas.height = rawData.height;
+          curr._canvas.width = rawData.width;
+          curr._canvas.height = rawData.height;
           curr.imgElm = this;
           curr.imageloaded = true;
 
@@ -158,13 +158,13 @@ function PostcardImageObject(url, ctx, options) {
   /***** privileged methods *****/
   /**
    * Change the source URL of the ImageObject
-   * @param {String} url - the new URL 
+   * @param {String} newUrl - the new URL 
    */
-  this.changeURL = function(url) {
-    init(url);
+  this.changeURL = function(newUrl) {
+    init(newUrl);
   }
-
-}
+};
+/***** public methods *****/
 /**
  * Draw method for the image object. Only applies after image data is loaded via proxy
  */
@@ -236,3 +236,104 @@ PostcardImageObject.prototype.setRotation = function(angle) {
   this.opts.rotation = angle % 360;
   _triggerEvent(this.ctx.canvas, "forcerender");
 };
+
+
+PostcardTextObject.prototype = new PostcardObject();
+PostcardTextObject.prototype.constructor = PostcardTextObject;
+/**
+ * Represents an internal object that deals with images
+ * @constructor
+ * @extends PostcardObject
+ * @param {String} text - actual text value
+ * @param {CanvasRenderingContext2D} ctx - context in which to draw the object 
+ * @param {Object} [options] - Defines placement and content.  
+ */
+function PostcardTextObject(text, ctx, options) {
+
+  var textDefaults = {
+    fill: '#ffffff',
+    style: "normal",
+    weight: "normal",
+    size: "16px",
+    family: "sans-serif",
+    fontString: "",
+    centered: false,
+  };
+  this.opts = _extend( {}, textDefaults, options); 
+  PostcardObject.apply(this, ["text", ctx, this.opts]);
+  if(this.opts.fontString.length) this.setFont(this.opts.fontString);
+
+  this.text = text;
+
+  /***** internal canvas for manipulation *****/
+  this._canvas = document.createElement('canvas');
+  this._ctx = this._canvas.getContext('2d');
+
+  this._ctx.font = this.getFont();
+  this.w = this._ctx.measureText(this.text).width;
+  this.h = parseInt(this.opts.size, 10);
+
+  console.log("text: " + this.text + " w: " + this.w + " h: " + this.h);
+
+  var curr = this;
+};
+/**
+ * Draw method for the text object
+ */
+PostcardTextObject.prototype.draw = function() {
+
+  this.ctx.save();             
+  this.ctx.fillStyle = this.opts.fill; 
+  this.ctx.font = this.getFont(); 
+  this.ctx.fillText(this.text, this.x, this.y);
+  this.ctx.restore();
+};
+/**
+ * Contains method for ImageObject. Necessary because y starts at the bottom left
+ * @returns {Boolean} if the coordinate is within the object's bounds
+ */
+PostcardTextObject.prototype.contains = function(mx, my) {
+  // All we have to do is make sure the Mouse X,Y fall in the area between
+  // the shape's X and (X + Width) and its Y and (Y + Height)
+  return  (this.x <= mx) && (this.x + this.w >= mx) &&
+          (this.y >= my) && (this.y - this.h <= my);
+          //(this.y >= my) && (this.y + this.h <= my);
+};
+/**
+ * Update the TextObject with a new text value
+ * @param {String} newText - the new text
+ */
+PostcardTextObject.prototype.changeText = function(newText) {
+  this.text = newText;
+};
+/**
+ * Formats the font options into the string thats recognized by ctx.font
+ * Format: "style weight size family"
+ */
+PostcardTextObject.prototype.getFont = function() {
+  return this.opts.style + ' ' 
+          + 'normal '
+          + this.opts.weight + ' ' 
+          + this.opts.size + ' '
+          + this.opts.family;
+};
+/**
+ * Allows for styling to be set via string, a la CSS
+ * NOTE: relies on "px" being part of the font size declaration
+ * Format: "hex style weight size family"
+ */
+PostcardTextObject.prototype.setFont = function (fontString) {
+
+    //format : "hex style weight size family"
+    //relies on "px" being part of the font size declaration
+
+    var pieces = fontString.split(' ', 4),
+        family = fontString.slice(fontString.indexOf('px') + 3);
+    this.opts.fill = pieces[0];
+    this.opts.style = pieces[1];
+    this.opts.weight = pieces[2];
+    this.opts.size = pieces[3];
+    this.opts.family = family;
+};
+
+
