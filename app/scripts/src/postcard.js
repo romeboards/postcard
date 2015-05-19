@@ -433,7 +433,7 @@ Postcard.prototype.export = function() {
   return this.elm.toDataURL();
 }
 /** 
- * Test test test
+ * Test test test TESTTTTTTT
  * @returns {TEST}
  */
 Postcard.prototype.test = function() { 

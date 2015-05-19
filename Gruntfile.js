@@ -157,22 +157,6 @@ module.exports = function (grunt) {
         }
     },
 
-    buildcontrol: {
-      options: {
-        dir: 'docs',
-        commit: true,
-        push: true,
-        message: 'Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%'
-      },
-      pages: {
-        options: {
-          remote: 'git@github.com:romeboards/postcard.git',
-          branch: 'gh-pages'
-        }
-      }
-    },
-
-
     // Mocha testing framework configuration options
     mocha: {
       all: {
@@ -475,7 +459,6 @@ module.exports = function (grunt) {
 
   grunt.registerTask('build', [
     'jsdoc',
-    //'buildcontrol:pages',
     'clean:dist',
     'wiredep',
     'useminPrepare',
