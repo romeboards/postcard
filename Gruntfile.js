@@ -212,26 +212,39 @@ module.exports = function (grunt) {
     },
 
     // Renames files for browser caching purposes
-    rev: {
-      dist: {
-        files: {
-          src: [
-            '<%= config.dist %>/scripts/{,*/}*.js',
-            '<%= config.dist %>/styles/{,*/}*.css',
-            '<%= config.dist %>/images/{,*/}*.*',
-            '<%= config.dist %>/styles/fonts/{,*/}*.*',
-            '<%= config.dist %>/*.{ico,png}'
-          ]
-        }
-      }
-    },
+    // rev: {
+    //   dist: {
+    //     files: {
+    //       src: [
+    //         '<%= config.dist %>/scripts/{,*/}*.js',
+    //         '<%= config.dist %>/styles/{,*/}*.css',
+    //         '<%= config.dist %>/images/{,*/}*.*',
+    //         '<%= config.dist %>/styles/fonts/{,*/}*.*',
+    //         '<%= config.dist %>/*.{ico,png}'
+    //       ]
+    //     }
+    //   }
+    // },
 
     // Reads HTML for usemin blocks to enable smart builds that automatically
     // concat, minify and revision files. Creates configurations in memory so
     // additional tasks can operate on them
     useminPrepare: {
       options: {
-        dest: '<%= config.dist %>'
+        dest: '<%= config.dist %>',
+        flow: {
+          // i'm using this config for all targets, not only 'html'
+          steps: {
+            // Here you define your flow for your custom block - only concat
+            myjs: ['concat'],
+            // Note that you NEED to redefine flow for default blocks... 
+            // These below is default flow.
+            js: ['concat', 'uglifyjs'],
+            css: ['concat', 'cssmin']
+          },
+          // also you MUST define 'post' field to something not null
+          post: {}
+        }
       },
       html: '<%= config.app %>/index.html'
     },
@@ -243,7 +256,14 @@ module.exports = function (grunt) {
           '<%= config.dist %>',
           '<%= config.dist %>/images',
           '<%= config.dist %>/styles'
-        ]
+        ],
+        blockReplacements: {
+          // our 'replacement block'
+          myjs: function (block) {
+            return '<script src="' + block.dest + '"></script>';
+          }
+          // no need to redefine default blocks
+        }
       },
       html: ['<%= config.dist %>/{,*/}*.html'],
       css: ['<%= config.dist %>/styles/{,*/}*.css']
@@ -439,7 +459,7 @@ module.exports = function (grunt) {
     'uglify',
     'copy:dist',
     'modernizr',
-    'rev',
+    //'rev',
     'usemin',
     'htmlmin'
   ]);

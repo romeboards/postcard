@@ -151,9 +151,9 @@ OrderedMap.prototype.toEnd = function(key) {
 };
 /**
  * Traverse through the OrderedMap, starting from lowest z-index to highest z-index. 
- * @param {objectCallback} f - The callback for each individual object.
+ * @param {objectCallback} callback - The callback function for each individual object.
  */
-OrderedMap.prototype.forEach = function(f) {
+OrderedMap.prototype.forEach = function(callback) {
   var key, value, zindex;
   for(var i = 0; i < this._karray.length; i++) {
       key = this._karray[i];
@@ -167,6 +167,20 @@ OrderedMap.prototype.forEach = function(f) {
        * @param {Number} zindex - The z-index of the object
        * @param value - The value of the object
        */    
-      f(key, zindex, value);
+      callback(key, zindex, value);
   }
+};
+/**
+ * Creates an array with all elements that pass the test implemented by the provided function.
+ * [TODO] Implement thisArg instead of apply-ing with null
+ * @param {Function} callback - Function to test each element of the OrderedMap. Invoked with arguments (key, zindex, value). Return true to keep the object, false otherwise.
+ */
+OrderedMap.prototype.filter = function(callback) {
+  var res = [];
+  this.forEach(function (key, zindex, value) {
+    if(callback.apply(null, [key, zindex, value])) {
+      res.push(value);
+    }
+  });
+  return res;
 };

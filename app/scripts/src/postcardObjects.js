@@ -251,7 +251,7 @@ PostcardTextObject.prototype.constructor = PostcardTextObject;
 function PostcardTextObject(text, ctx, options) {
 
   var textDefaults = {
-    fill: '#ffffff',
+    fill: "#ffffff",
     style: "normal",
     weight: "normal",
     size: "16px",
@@ -261,21 +261,23 @@ function PostcardTextObject(text, ctx, options) {
   };
   this.opts = _extend( {}, textDefaults, options); 
   PostcardObject.apply(this, ["text", ctx, this.opts]);
-  if(this.opts.fontString.length) this.setFont(this.opts.fontString);
 
   this.text = text;
+  var curr = this;
 
   /***** internal canvas for manipulation *****/
   this._canvas = document.createElement('canvas');
   this._ctx = this._canvas.getContext('2d');
 
-  this._ctx.font = this.getFont();
-  this.w = this._ctx.measureText(this.text).width;
-  this.h = parseInt(this.opts.size, 10);
+  var measureText = function() {
+    curr._ctx.font = curr.getFont();
+    curr.w = curr._ctx.measureText(curr.text).width;    
+    curr.h = parseInt(curr.opts.size, 10);    
+  };
 
-  console.log("text: " + this.text + " w: " + this.w + " h: " + this.h);
-
-  var curr = this;
+  //console.log("text: " + this.text + " w: " + this.w + " h: " + this.h);
+  if(this.opts.fontString.length) this.setFont(this.opts.fontString);
+  else measureText();
 };
 /**
  * Draw method for the text object
@@ -305,6 +307,8 @@ PostcardTextObject.prototype.contains = function(mx, my) {
  */
 PostcardTextObject.prototype.changeText = function(newText) {
   this.text = newText;
+  this.w = this._ctx.measureText(this.text).width;
+  _triggerEvent(this.ctx.canvas, "forcerender");
 };
 /**
  * Formats the font options into the string thats recognized by ctx.font
@@ -334,6 +338,10 @@ PostcardTextObject.prototype.setFont = function (fontString) {
     this.opts.weight = pieces[2];
     this.opts.size = pieces[3];
     this.opts.family = family;
+    this._ctx.font = this.getFont();
+    this.w = this._ctx.measureText(this.text).width;    
+    this.h = parseInt(this.opts.size, 10); 
+    _triggerEvent(this.ctx.canvas, "forcerender");
 };
 
 

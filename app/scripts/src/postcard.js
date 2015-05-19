@@ -249,7 +249,7 @@ Postcard.prototype.render = function() {
 
     // draw selection
     // right now this is just a stroke along the edge of the selected Shape
-    if (this.selection != null) {
+    if(this.selection != null) {
       this.ctx.strokeStyle = '#CC0000';
       this.ctx.lineWidth = '2';
       var s = this.selection;
@@ -267,6 +267,14 @@ Postcard.prototype.render = function() {
 */
 Postcard.prototype.get = function(id) {
   return this.renderingStack.get(id);
+};
+/**
+* Get multiple objects on the postcard using a test function
+* @param {Function} callback - Tests each element given arguments (key, zindex, value). Returning true keeps the element.
+* @returns {PostcardObject Array} - Array of elements which pass the test
+*/
+Postcard.prototype.getSome = function(callback) {
+  return this.renderingStack.filter(callback);
 };
 /**
 * Get the current selection on the postcard, if there is one
