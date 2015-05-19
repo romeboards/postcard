@@ -433,7 +433,8 @@ Postcard.prototype.export = function() {
   return this.elm.toDataURL();
 }
 /** 
- * Test test test TESTTTTTTT
+ * Test test test
+ * Lorem ipsum dolor sit amet
  * @returns {TEST}
  */
 Postcard.prototype.test = function() { 
