@@ -148,6 +148,15 @@ module.exports = function (grunt) {
       ]
     },
 
+    jsdoc: {
+        dist: {
+            src: ['<%= config.app %>/scripts/src/*.js'],
+            options: {
+                destination: 'docs'
+            }
+        }
+    },
+
     // Mocha testing framework configuration options
     mocha: {
       all: {
@@ -449,6 +458,7 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('build', [
+    'jsdoc',
     'clean:dist',
     'wiredep',
     'useminPrepare',
@@ -458,7 +468,7 @@ module.exports = function (grunt) {
     'cssmin',
     'uglify',
     'copy:dist',
-    'modernizr',
+    //'modernizr',
     //'rev',
     'usemin',
     'htmlmin'
