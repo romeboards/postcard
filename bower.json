@@ -6,5 +6,19 @@
     "type": "git",
     "url": "git://github.com/romeboards/postcard.git"
   },
-  "main": "dist/scripts/src/postcard.min.js"
+  "main": "dist/scripts/src/postcard.min.js",
+  "ignore": [
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "tasks",
+    "component.json",
+    "composer.json",
+    "CONTRIBUTING.md",
+    "ender.js",
+    "Gruntfile.js",
+    "package.js",
+    "package.json"
+  ]  
 }
