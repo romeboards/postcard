@@ -119,7 +119,7 @@ function PostcardImageObject(url, ctx, options) {
         var newImage = new Image();
         newImage.onload = function () {
 
-          console.log("onload event");
+          //console.log("onload event");
 
           curr._canvas.width = rawData.width;
           curr._canvas.height = rawData.height;
@@ -151,7 +151,7 @@ function PostcardImageObject(url, ctx, options) {
    * @private
    */
   var onImageRefresh = function() {
-    console.log('imagerefresh');
+    //console.log('imagerefresh');
     _triggerEvent(curr.ctx.canvas, "forcerender"); 
   };
 

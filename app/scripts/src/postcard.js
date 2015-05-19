@@ -83,7 +83,6 @@ function Postcard( element, options ) {
   this.elm.addEventListener('selectstart', function(e) { e.preventDefault(); return false; }, false);
 
   this.elm.addEventListener('mousedown', function(e) { 
-    console.log("mouse");
     currentState.dragging = true;
     if(currentState.opts.allowSelections) selectionMouseDownEvent(e); 
   }, false);
@@ -301,7 +300,7 @@ Postcard.prototype.addObject = function(id, zindex, options) {
     else _options = arguments[1];
   } 
 
-  console.log("adding: " + _id + " at z-index: " + _zindex + " with options: ", _options);
+  //console.log("adding: " + _id + " at z-index: " + _zindex + " with options: ", _options);
 
   var newObject = new PostcardObject("shape", this.ctx, _options);
   this.renderingStack.add(_id, _zindex, newObject);
@@ -333,7 +332,7 @@ Postcard.prototype.addImage = function(id, url, zindex, options) {
     // less than 3
   }
 
-  console.log("adding: " + _id + " at z-index: " + _zindex + " with options: ", _options);
+  //console.log("adding: " + _id + " at z-index: " + _zindex + " with options: ", _options);
 
   var newImageObject = new PostcardImageObject(_url, this.ctx, _options);
   this.renderingStack.add(_id, _zindex, newImageObject);
@@ -365,7 +364,7 @@ Postcard.prototype.addText = function(id, text, zindex, options) {
     // less than 3
   }
 
-  console.log("adding: " + _id + " at z-index: " + _zindex + " with options: ", _options);
+  //console.log("adding: " + _id + " at z-index: " + _zindex + " with options: ", _options);
 
   var newTextObject = new PostcardTextObject(_text, this.ctx, _options);
   this.renderingStack.add(_id, _zindex, newTextObject);
