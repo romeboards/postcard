@@ -6,5 +6,6 @@ bower_components
 server
 npm-debug.log
 app/scripts/out
+app/scripts/old
 app/scripts/src/out
 php
