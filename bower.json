@@ -6,7 +6,7 @@
     "type": "git",
     "url": "git://github.com/romeboards/postcard.git"
   },
-  "main": "dist/scripts/src/postcard.min.js",
+  "main": "dist/scripts/postcard.min.js",
   "ignore": [
     "node_modules",
     "bower_components",

@@ -270,6 +270,13 @@ Postcard.prototype.get = function(id) {
   return this.renderingStack.get(id);
 };
 /**
+* Get an object on the postcard with its ID and remove it
+* @param {String} id - Unique identifier for the object
+*/
+Postcard.prototype.remove = function(id) {
+  return this.renderingStack.remove(id);
+};
+/**
 * Get multiple objects on the postcard using a test function
 * @param {Function} callback - Tests each element given arguments (key, zindex, value). Returning true keeps the element.
 * @returns {PostcardObjectArray} - Array of elements which pass the test
