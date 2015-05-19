@@ -19,6 +19,14 @@
     "ender.js",
     "Gruntfile.js",
     "package.js",
-    "package.json"
+    "package.json",
+    "dist/images",
+    "dist/styles",
+    "dist/index.html",
+    "dist/robots.txt",
+    "dist/favicon.ico",
+    "dist/404.html",
+    "dist/scripts/vendor",
+    "dist/scripts/main.js"
   ]  
 }
