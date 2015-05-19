@@ -57,9 +57,9 @@ Filters.gradientMap = function (tone1, tone2) {
   }
   return gradient;
 };
-$(document).ready(function () {
+(function() {
 
-  var canvas = $('#canvas-postcard')[0];
+  var canvas = document.getElementById("canvas-postcard");
 
 
   var postcardOptions = {
@@ -112,8 +112,8 @@ $(document).ready(function () {
     }
   };
 
-  //postcard.onMouseDown(dragMouseDown);
-  //postcard.onMouseMove(dragMouseMove);
+  postcard.onMouseDown(dragMouseDown);
+  postcard.onMouseMove(dragMouseMove);
 
 
   postcard.addText("textsampleA.change", "HELLO", 10, { x: 0, y: 25, size: "24px" });
@@ -179,53 +179,49 @@ $(document).ready(function () {
   var obj = background;
   obj.flipped = false;
 
-  $('a').click(function () {
-  // obj = postcard.get("sampleImageD");
-  });
-
-  $('a#rotate').click(function () {
+  document.getElementById("rotate").addEventListener("click", function () {
     obj.setRotation(obj.getRotation() + 90);
   });
 
-  $('a#filterA').click(function () {
+  document.getElementById("filterA").addEventListener("click", function () {
     var img = obj.getOriginalImageData();
     if(obj.flipped) img = flipImage(img);
     var newImg = Filters.duotone(img, "#4B917D", "#CDF564");  //dark, light
     obj.setImageData(newImg);
   });
-  $('a#filterB').click(function () {
+  document.getElementById("filterB").addEventListener("click", function () {
     var img = obj.getOriginalImageData();
     if(obj.flipped) img = flipImage(img);
     var newImg = Filters.duotone(img, "#1E3264", "#C3F0C8");  //dark, light
     obj.setImageData(newImg);
   }); 
-  $('a#filterC').click(function () {
+  document.getElementById("filterC").addEventListener("click", function () {
     var img = obj.getOriginalImageData();
     if(obj.flipped) img = flipImage(img);
     var newImg = Filters.duotone(img, "#503750", "#FFC864");  //dark, light
     obj.setImageData(newImg);
   });     
 
-  $('a#flip').click(function () {
+  document.getElementById("flip").addEventListener("click", function () {
     var img = obj.getCurrentImageData();
     var newImg = flipImage(img);
     obj.setImageData(newImg);
     obj.flipped = !obj.flipped;
   }); 
 
-  $('a#revert').click(function () {
+  document.getElementById("revert").addEventListener("click", function () {
     obj.revert();
   });
 
-  $('a#change').click(function () {
+  document.getElementById("change").addEventListener("click", function () {
     obj.changeURL(sampleURL3);
   });  
 
-  $('a#save').click(function (event) {
+  document.getElementById("save").addEventListener("click", function (event) {
     postcard.save(event);
   });
 
-  $('a#text').click(function (event) {
+  document.getElementById("text").addEventListener("click", function (event) {
     var text = postcard.getSome(function (key, zindex, value) {
       if(key.indexOf(".change") > -1) return true;
       else return false;
@@ -242,10 +238,10 @@ $(document).ready(function () {
   //   postcard.valid = false;
   // });
 
-  $('a#scale').click(function (event) {
+  document.getElementById("scale").addEventListener("click", function (event) {
     postcard.clearMouseEvents();
     postcard.onMouseDown(scaleMouseDown);
     postcard.onMouseMove(scaleMouseMove);
   });
 
-});
+})();
