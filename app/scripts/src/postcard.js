@@ -16,15 +16,12 @@ function Postcard( element, options ) {
     filename: "yourpostcard.png",
     renderInterval: "30",
     allowSelections: false,
-    backgroundImgUrl: "",
-    backgroundColor: "#fff",
+    backgroundColor: "#ffffff",
     fontFamily: "sans-serif",
     fontSize: "16px",
     fontColor: "#fff",
     fontStyle: "normal",
-    fontWeight: "normal",
-    lineColor: "#ff0000",
-    lineWeight: "5"
+    fontWeight: "normal"
   },
   browser = { isOpera : false, isFirefox : false, isSafari : false, isChrome : false, isIE : false };
 
@@ -33,6 +30,7 @@ function Postcard( element, options ) {
   this.opts = _extend( {}, defaults, options);    
   this.height = this.opts.height = this.elm.height;
   this.width = this.opts.width = this.elm.width;
+  this.startingZindex = 1,
   this.ctx = this.elm.getContext("2d");
 
   /***** browser details *****/
@@ -73,6 +71,10 @@ function Postcard( element, options ) {
 
   /***** main rendering loop *****/
   setInterval(function() { currentState.render(); }, currentState.opts.renderInterval);
+
+  /***** background *****/
+  this.addObject("__background__", 0, { w: this.width, h: this.height, fill: this.opts.backgroundColor });
+
 
   /***** events *****/
   this.elm.addEventListener("forcerender", function(e) {
@@ -290,7 +292,9 @@ Postcard.prototype.getSelection = function() {
  */
 Postcard.prototype.addObject = function(id, zindex, options) {
 
-  var _id = id, _zindex = 0, _options = {};
+  var _id = id, 
+      _zindex = this.startingZindex, 
+      _options = {};
 
   if(arguments.length > 2) {
     _zindex = arguments[1];
@@ -300,7 +304,7 @@ Postcard.prototype.addObject = function(id, zindex, options) {
     else _options = arguments[1];
   } 
 
-  //console.log("adding: " + _id + " at z-index: " + _zindex + " with options: ", _options);
+  console.log("adding: " + _id + " at z-index: " + _zindex + " with options: ", _options);
 
   var newObject = new PostcardObject("shape", this.ctx, _options);
   this.renderingStack.add(_id, _zindex, newObject);
@@ -314,8 +318,10 @@ Postcard.prototype.addObject = function(id, zindex, options) {
  */
 Postcard.prototype.addImage = function(id, url, zindex, options) {
 
-  var _id = id, _url = url,
-      _zindex = 0, _options = {};
+  var _id = id, 
+      _url = url,
+      _zindex = this.startingZindex, 
+      _options = {};
 
   if(typeof arguments[1] !== "string") {
     throw new Error("no url specified? id: " + _id);
@@ -332,7 +338,7 @@ Postcard.prototype.addImage = function(id, url, zindex, options) {
     // less than 3
   }
 
-  //console.log("adding: " + _id + " at z-index: " + _zindex + " with options: ", _options);
+  console.log("adding: " + _id + " at z-index: " + _zindex + " with options: ", _options);
 
   var newImageObject = new PostcardImageObject(_url, this.ctx, _options);
   this.renderingStack.add(_id, _zindex, newImageObject);
@@ -346,8 +352,16 @@ Postcard.prototype.addImage = function(id, url, zindex, options) {
  */
 Postcard.prototype.addText = function(id, text, zindex, options) {
 
-  var _id = id, _text = text,
-      _zindex = 0, _options = {};
+  var _id = id, 
+      _text = text,
+      _zindex = this.startingZindex, 
+      _options = {                        // postcard defaults
+        family: this.opts.fontFamily,
+        size: this.opts.fontSize,
+        fill: this.opts.fontColor,
+        style: this.opts.fontStyle,
+        weight: this.opts.fontWeight
+      };
 
   if(typeof arguments[1] !== "string") {
     throw new Error("no text specified? id: " + _id);
@@ -356,15 +370,15 @@ Postcard.prototype.addText = function(id, text, zindex, options) {
   // this is convoluted. should be done better.
   if(arguments.length > 3) {
     _zindex = arguments[2];
-    _options = arguments[3];
+    _options = _extend( {}, _options, arguments[3]); 
   } else if(arguments.length === 3) {
     if (typeof arguments[2] == "number") _zindex = arguments[2];
-    else _options = arguments[2];
+    else _options = _options = _extend( {}, _options, arguments[2]); 
   } else {
     // less than 3
   }
 
-  //console.log("adding: " + _id + " at z-index: " + _zindex + " with options: ", _options);
+  console.log("adding: " + _id + " at z-index: " + _zindex + " with options: ", _options);
 
   var newTextObject = new PostcardTextObject(_text, this.ctx, _options);
   this.renderingStack.add(_id, _zindex, newTextObject);
