@@ -435,6 +435,7 @@ Postcard.prototype.export = function() {
 /** 
  * Test test test
  * Lorem ipsum dolor sit amet
+ * blah blah blah
  * @returns {TEST}
  */
 Postcard.prototype.test = function() { 
