@@ -88,7 +88,6 @@ function PostcardImageObject(url, ctx, options) {
 
   /***** internal canvas for ImageData manipulation *****/
   this._canvas = document.createElement('canvas');
-  // something
   this._ctx = this._canvas.getContext('2d');
 
   var curr = this;
@@ -131,6 +130,7 @@ function PostcardImageObject(url, ctx, options) {
   /**
    * Takes raw image data (from the proxy or cache) and sets it to the ImageObject,
    * using an HTMLImageElement as a shell
+   * test test test
    * @private
    * @params {Object} newImg - Contains width, height, and src of DataURI
    */
