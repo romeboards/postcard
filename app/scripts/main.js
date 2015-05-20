@@ -18,6 +18,10 @@
   //var background = postcard.get("background");
 
 
+  background.onImageLoaded(function () {
+    console.log(this);
+  });
+
   var dragMouseDown = function (x,y) {
     postcard.dragoffx = x - background.x;
     postcard.dragoffy = y - background.y;

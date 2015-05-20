@@ -84,6 +84,7 @@ function PostcardImageObject(url, ctx, options) {
   this.opts = _extend( {}, imageDefaults, options); 
   PostcardObject.apply(this, ["image", ctx, this.opts]);
   this.imageloaded = false;     // used to know when to start drawing
+  this.userImageLoaded = function() {};
   this.cache = {};              // cache images so we don't have to keep proxy-ing them
 
   /***** internal canvas for ImageData manipulation *****/
@@ -151,6 +152,7 @@ function PostcardImageObject(url, ctx, options) {
         }
 
         curr.imageloaded = true;
+        curr.userImageLoaded.apply(curr);
 
         // trigger a render of the postcard canvas  
         _triggerEvent(curr.ctx.canvas, "forcerender"); 
@@ -167,7 +169,6 @@ function PostcardImageObject(url, ctx, options) {
    * @private
    */
   function onImageRefresh() {
-    console.log('imagerefresh');
     _triggerEvent(curr.ctx.canvas, "forcerender"); 
   };
 
@@ -254,6 +255,14 @@ PostcardImageObject.prototype.setRotation = function(angle) {
   this.opts.rotation = angle % 360;
   _triggerEvent(this.ctx.canvas, "forcerender");
 };
+/**
+ * Set a callback function to be called when an image is done loading;
+ * @param {Function} callback - Callback function. Applied to `this`
+ */
+PostcardImageObject.prototype.onImageLoaded = function(callback) {
+  this.userImageLoaded = callback;
+  //this.elm.addEventListener('mousedown', callback, false);
+};
 
 
 PostcardTextObject.prototype = new PostcardObject();
@@ -307,6 +316,17 @@ PostcardTextObject.prototype.draw = function() {
   this.ctx.font = this.getFont(); 
   this.ctx.fillText(this.text, this.x, this.y);
   this.ctx.restore();
+};
+/**
+ * Generic update method for PostcardObject.
+ * @param {Object} newOptions - any options to update
+ */
+PostcardTextObject.prototype.update = function(newOptions) {
+  this.opts = _extend( {}, this.opts, newOptions);  
+  this.x = parseInt(this.opts.x, 10);                           /* for brevitys sake */
+  this.y = parseInt(this.opts.y, 10);
+  this.w = this.opts.w = this._ctx.measureText(this.text).width; 
+  this.h = parseInt(this.opts.h, 10);
 };
 /**
  * Contains method for ImageObject. Necessary because y starts at the bottom left
