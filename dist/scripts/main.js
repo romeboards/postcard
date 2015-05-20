@@ -140,7 +140,7 @@ Filters.gradientMap = function (tone1, tone2) {
   //postcard.addImage("sampleImageB", sampleURL, 0);
   //postcard.addImage("sampleImageC", sampleURL, 2, {});
 
-  postcard.addImage("sampleImageF", sampleURL2, 5, { x: 100, y: 100, w: 100, h: 100 });
+  //postcard.addImage("sampleImageF", sampleURL2, 5, { x: 100, y: 100, w: 100, h: 100 });
   //postcard.addImage("sampleImageE", sampleURL2, { y: "200" });
   //var newImage = new PostcardImageObject('http://vignette3.wikia.nocookie.net/animalcrossing/images/b/bd/Grey-wolf_565_600x450.jpg', { w: 100, h: 100, x: 0, y: 0 });
   //this.renderingStack.add("background", 0, newImage);
@@ -215,8 +215,12 @@ Filters.gradientMap = function (tone1, tone2) {
     obj.revert();
   });
 
+  var toggle = true;
+
   document.getElementById("change").addEventListener("click", function () {
-    obj.changeURL(sampleURL3);
+    if(toggle) obj.changeURL(sampleURL3);
+    else obj.changeURL(sampleURL);
+    toggle = !toggle;
   });  
 
   document.getElementById("save").addEventListener("click", function (event) {

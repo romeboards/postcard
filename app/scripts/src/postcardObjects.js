@@ -88,6 +88,7 @@ function PostcardImageObject(url, ctx, options) {
 
   /***** internal canvas for ImageData manipulation *****/
   this._canvas = document.createElement('canvas');
+  // something
   this._ctx = this._canvas.getContext('2d');
 
   var curr = this;
