@@ -325,7 +325,7 @@ PostcardTextObject.prototype.contains = function(mx, my) {
  */
 PostcardTextObject.prototype.changeText = function(newText) {
   this.text = newText;
-  this.w = this._ctx.measureText(this.text).width;
+  this.w = this.opts.w = this._ctx.measureText(this.text).width;
   _triggerEvent(this.ctx.canvas, "forcerender");
 };
 /**
@@ -357,8 +357,8 @@ PostcardTextObject.prototype.setFont = function (fontString) {
     this.opts.size = pieces[3];
     this.opts.family = family;
     this._ctx.font = this.getFont();
-    this.w = this._ctx.measureText(this.text).width;    
-    this.h = parseInt(this.opts.size, 10); 
+    this.w = this.opts.w = this._ctx.measureText(this.text).width;    
+    this.h = this.opts.h = parseInt(this.opts.size, 10); 
     _triggerEvent(this.ctx.canvas, "forcerender");
 };
 
