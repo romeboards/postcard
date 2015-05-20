@@ -130,7 +130,7 @@ function PostcardImageObject(url, ctx, options) {
   /**
    * Takes raw image data (from the proxy or cache) and sets it to the ImageObject,
    * using an HTMLImageElement as a shell
-   * test test test
+   * test test test TEST TEST TEST
    * @private
    * @params {Object} newImg - Contains width, height, and src of DataURI
    */
