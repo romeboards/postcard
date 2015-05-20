@@ -73,7 +73,7 @@ function Postcard( element, options ) {
   setInterval(function() { currentState.render(); }, currentState.opts.renderInterval);
 
   /***** background *****/
-  this.addObject("__background__", 0, { w: this.width, h: this.height, fill: this.opts.backgroundColor });
+  this.background = this.addObject("__background__", 0, { w: this.width, h: this.height, fill: this.opts.backgroundColor });
 
 
   /***** events *****/
@@ -296,6 +296,7 @@ Postcard.prototype.getSelection = function() {
  * @param {String} id - Unique identifier for the object
  * @param {Number} [zindex] - Z-index for the object. Defaults to 0
  * @param {Object} [options] - Defines placement and content. See PostcardObject contructor
+ * @returns {PostcardObject} Reference to the newly created object 
  */
 Postcard.prototype.addObject = function(id, zindex, options) {
 
@@ -315,6 +316,7 @@ Postcard.prototype.addObject = function(id, zindex, options) {
 
   var newObject = new PostcardObject("shape", this.ctx, _options);
   this.renderingStack.add(_id, _zindex, newObject);
+  return newObject;
 };
 /**
  * Add an image
@@ -322,6 +324,7 @@ Postcard.prototype.addObject = function(id, zindex, options) {
  * @param {Srting} url - URL to the image
  * @param {Number} [zindex] - Z-index for the object. Defaults to 0
  * @param {Object} [options] - Defines placement and content. See PostcardObject contructor
+ * @returns {PostcardImageObject} Reference to the newly created object 
  */
 Postcard.prototype.addImage = function(id, url, zindex, options) {
 
@@ -349,6 +352,7 @@ Postcard.prototype.addImage = function(id, url, zindex, options) {
 
   var newImageObject = new PostcardImageObject(_url, this.ctx, _options);
   this.renderingStack.add(_id, _zindex, newImageObject);
+  return newImageObject;  
 };
 /**
  * Add an image
@@ -356,6 +360,7 @@ Postcard.prototype.addImage = function(id, url, zindex, options) {
  * @param {Srting} url - URL to the image
  * @param {Number} [zindex] - Z-index for the object. Defaults to 0
  * @param {Object} [options] - Defines placement and content. See PostcardObject contructor
+ * @returns {PostcardTextObject} Reference to the newly created object
  */
 Postcard.prototype.addText = function(id, text, zindex, options) {
 
@@ -389,6 +394,7 @@ Postcard.prototype.addText = function(id, text, zindex, options) {
 
   var newTextObject = new PostcardTextObject(_text, this.ctx, _options);
   this.renderingStack.add(_id, _zindex, newTextObject);
+  return newTextObject;
 };
 /** 
  * Export the Postcard and trigger a save prompt

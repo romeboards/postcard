@@ -14,8 +14,8 @@
   var postcard = new Postcard(canvas, postcardOptions);
 
   var sampleURL = 'http://vignette3.wikia.nocookie.net/animalcrossing/images/b/bd/Grey-wolf_565_600x450.jpg';
-  postcard.addImage("background", sampleURL, { x: -50, y: -50, w: 450, h: 450 });
-  var background = postcard.get("background");
+  var background = postcard.addImage("background", sampleURL, { x: -50, y: -50, w: 450, h: 450 });
+  //var background = postcard.get("background");
 
 
   var dragMouseDown = function (x,y) {
@@ -59,12 +59,12 @@
   postcard.onMouseMove(dragMouseMove);
 
 
-  postcard.addText("textsampleA.change", "HELLO", 10, { x: 0, y: 25, size: "24px" });
+  var sampleA = postcard.addText("textsampleA.change", "HELLO", 10, { x: 0, y: 25, size: "24px" });
   postcard.addText("textsampleB", "I'd like to buy the world a coke.", 10, { x: 25, y: 75, size: "40px" });
   postcard.addText("textsampleC.change", "Something Else", 10, { x: 100, y: 200, fill: "red" });
   postcard.addText("textsampleD", "Last Something", 10, { x: 10, y: 260, fontString: "green italic bold 30px Cutive Mono" });
 
-  postcard.get("textsampleA.change").changeText("HELLO, DAN");
+  sampleA.changeText("HELLO, DAN");
 
   // postcard.addObject("sampleA");
   // postcard.addObject("sampleB", 0);
