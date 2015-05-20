@@ -432,12 +432,3 @@ Postcard.prototype.save = function(event) {
 Postcard.prototype.export = function() { 
   return this.elm.toDataURL();
 }
-/** 
- * Test test test
- * Lorem ipsum dolor sit amet
- * THIS SHOULD WORK STILL
- * @returns {TEST}
- */
-Postcard.prototype.test = function() { 
-  //return this.elm.toDataURL();
-}
