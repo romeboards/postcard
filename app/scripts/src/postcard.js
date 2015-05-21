@@ -78,7 +78,7 @@ function Postcard( element, options ) {
 
   /***** events *****/
   this.elm.addEventListener("forcerender", function(e) {
-    currentState.valid = false;
+    currentState.triggerRefresh();
   });
 
   //fixes a problem where double clicking causes text to get selected on the canvas
@@ -233,6 +233,12 @@ function Postcard( element, options ) {
  */
 Postcard.prototype.clear = function() {
   this.ctx.clearRect(0, 0, this.width, this.height);
+};  
+/**
+ * Triggers a refresh of the postcard. Use after changing the properties of any element.
+ */
+Postcard.prototype.triggerRefresh = function() {
+  this.valid = false;
 };  
 /**
  * Main rendering loop for the Postcard

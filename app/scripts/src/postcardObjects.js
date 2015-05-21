@@ -185,7 +185,7 @@ function PostcardImageObject(url, ctx, options) {
   this.changeURL = function(newUrl) {
     if(newUrl === this.url) return;
     this.imageloaded = false;
-    if(newUrl in this.cache) applyImage(this.cache[newUrl]);
+    if(newUrl in this.cache) applyImage(this.cache[newUrl].data);
     else loadImage(newUrl);
   }
 };
