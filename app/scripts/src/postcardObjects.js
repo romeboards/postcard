@@ -108,7 +108,12 @@ function PostcardImageObject(url, ctx, options) {
 
     var regex_url_test = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
 
-    if(url) {
+    if(!url || !url.length) throw new Error('no URL specified');
+
+    if(url.indexOf('http://') === -1 && url.indexOf('https://') === -1) {   /* relative url */
+      curr.url = url;
+      applyImage(url);
+    } else {                                                                /* absolute url */
       var isSecure = location.protocol === "https:";
       var proxyURL = curr.proxyURL + "?callback=?";
 
@@ -124,7 +129,7 @@ function PostcardImageObject(url, ctx, options) {
          */
         curr.url = url;
         curr.cache[curr.url] = rawData;         
-        applyImage(curr.cache[curr.url]);
+        applyImage(curr.cache[curr.url].data);
       });
     }
   };
@@ -139,8 +144,8 @@ function PostcardImageObject(url, ctx, options) {
       var newImgElm = new Image();
       newImgElm.onload = function () {
 
-        curr._canvas.width = newImg.width;
-        curr._canvas.height = newImg.height;
+        curr._canvas.width = this.width;
+        curr._canvas.height = this.height;
         curr.imgElm = this;
 
         // draws the image on the internal canvas so we can extract the ImageData from it 
@@ -161,7 +166,7 @@ function PostcardImageObject(url, ctx, options) {
         this.onload = onImageRefresh;  
         
       };
-      newImgElm.src = newImg.data;
+      newImgElm.src = newImg;
   };
 
   /**
@@ -257,7 +262,7 @@ PostcardImageObject.prototype.setRotation = function(angle) {
   _triggerEvent(this.ctx.canvas, "forcerender");
 };
 /**
- * Set a callback function to be called when an image is done loading;
+ * Set a callback function to be called when an image is done loading
  * @param {Function} callback - Callback function. Applied to `this`
  */
 PostcardImageObject.prototype.onImageLoaded = function(callback) {
