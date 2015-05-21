@@ -60,8 +60,8 @@ PostcardObject.prototype.update = function(newOptions) {
   this.h = parseInt(this.opts.h, 10);
 
   // trigger a render of the postcard canvas  
-  _triggerEvent(curr.ctx.canvas, "forcerender"); 
-  
+  _triggerEvent(this.ctx.canvas, "forcerender"); 
+
 };
 
 
