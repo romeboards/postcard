@@ -219,7 +219,7 @@ Filters.gradientMap = function (tone1, tone2) {
     obj.revert();
   });
 
-  var toggle = true;
+  var toggle = false;
 
   document.getElementById("change").addEventListener("click", function () {
     if(toggle) obj.changeURL(sampleURL3);

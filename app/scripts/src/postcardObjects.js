@@ -178,6 +178,7 @@ function PostcardImageObject(url, ctx, options) {
    * @param {String} newUrl - the new URL 
    */
   this.changeURL = function(newUrl) {
+    if(newUrl === this.url) return;
     this.imageloaded = false;
     if(newUrl in this.cache) applyImage(this.cache[newUrl]);
     else loadImage(newUrl);
@@ -261,7 +262,6 @@ PostcardImageObject.prototype.setRotation = function(angle) {
  */
 PostcardImageObject.prototype.onImageLoaded = function(callback) {
   this.userImageLoaded = callback;
-  //this.elm.addEventListener('mousedown', callback, false);
 };
 
 

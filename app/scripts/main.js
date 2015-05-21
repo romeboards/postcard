@@ -160,7 +160,7 @@
     obj.revert();
   });
 
-  var toggle = true;
+  var toggle = false;
 
   document.getElementById("change").addEventListener("click", function () {
     if(toggle) obj.changeURL(sampleURL3);
