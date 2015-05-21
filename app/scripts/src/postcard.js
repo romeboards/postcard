@@ -266,7 +266,7 @@ Postcard.prototype.render = function() {
 
     this.valid = true;
   }
-};
+  };
 /**
 * Get an object on the postcard with its ID
 * @param {String} id - Unique identifier for the object
