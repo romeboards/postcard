@@ -128,8 +128,8 @@ function PostcardImageObject(url, ctx, options) {
          * we add it to the cache for later, then pass the new cached object to applyImage
          */
         curr.url = url;
-        curr.cache[curr.url] = rawData;         
-        applyImage(curr.cache[curr.url].data);
+        curr.cache[curr.url] = rawData.data;         
+        applyImage(curr.cache[curr.url]);
       });
     }
   };
@@ -140,6 +140,8 @@ function PostcardImageObject(url, ctx, options) {
    * @params {Object} newImg - Contains width, height, and src of DataURI
    */
   function applyImage(newImg) {
+
+      //console.log('applying image: ', newImg);
 
       var newImgElm = new Image();
       newImgElm.onload = function () {
@@ -185,7 +187,10 @@ function PostcardImageObject(url, ctx, options) {
   this.changeURL = function(newUrl) {
     if(newUrl === this.url) return;
     this.imageloaded = false;
-    if(newUrl in this.cache) applyImage(this.cache[newUrl].data);
+    if(newUrl in this.cache) {
+      this.url = newUrl;
+      applyImage(this.cache[newUrl]);
+    }
     else loadImage(newUrl);
   }
 };
