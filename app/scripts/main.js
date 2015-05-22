@@ -15,7 +15,7 @@
 
   var sampleURL = 'http://vignette3.wikia.nocookie.net/animalcrossing/images/b/bd/Grey-wolf_565_600x450.jpg';
   var sampleURL2 = '/images/test.jpg';
-  var background = postcard.addImage("background", sampleURL2, { x: -50, y: -50, w: 450, h: 450 });
+  var background = postcard.addImage("background", "", { x: -50, y: -50, w: 450, h: 450 });
   //var background = postcard.get("background");
 
 

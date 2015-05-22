@@ -213,11 +213,11 @@ module.exports = function (grunt) {
         ignorePath: /^\/|\.\.\//,
         src: ['<%= config.app %>/index.html'],
         exclude: ['bower_components/bootstrap-sass-official/assets/javascripts/bootstrap.js']
-      },
-      sass: {
-        src: ['<%= config.app %>/styles/{,*/}*.{scss,sass}'],
-        ignorePath: /(\.\.\/){1,2}bower_components\//
-      }
+      }//,
+      // sass: {
+      //   src: ['<%= config.app %>/styles/{,*/}*.{scss,sass}'],
+      //   ignorePath: /(\.\.\/){1,2}bower_components\//
+      // }
     },
 
     // Renames files for browser caching purposes
@@ -462,10 +462,10 @@ module.exports = function (grunt) {
     'clean:dist',
     'wiredep',
     'useminPrepare',
-    'concurrent:dist',
+    //'concurrent:dist',
     'autoprefixer',
     'concat',
-    'cssmin',
+    //'cssmin',
     'uglify',
     'copy:dist',
     //'modernizr',

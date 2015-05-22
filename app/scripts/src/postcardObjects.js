@@ -6,7 +6,12 @@
  * @param {text|image|shape} type - The type of object being rendered
  * @param {CanvasRenderingContext2D} ctx - context in which to draw the object
  * @param {Object} [options] - Defines placement and content. 
- * @param {Object} [options.opacity] - Opacity of the image. Defaults to 1.0
+ * @param {Object} [options.x=0] - X value of the object.
+ * @param {Object} [options.y=0] - Y value of the object.
+ * @param {Object} [options.w=50] - Width of the object.
+ * @param {Object} [options.h=50] - Height of the object.
+ * @param {Object} [options.fill=steelblue] - Fill (color) of the object.
+ * @param {Object} [options.rotation=0] - Rotation of the object (in degrees).
  */
 function PostcardObject(type, ctx, options) {
 
@@ -15,10 +20,8 @@ function PostcardObject(type, ctx, options) {
     y: 0,
     w: 50,
     h: 50,
-    opcaity: 1.0,
+    opacity: 1.0,
     fill: "steelblue",
-    selectable: false,
-    zindex: 0,
     rotation: 0
   };
 
@@ -92,12 +95,12 @@ PostcardImageObject.prototype.constructor = PostcardImageObject;
  * @param {String} url - URL to the image (relative or absolute)
  * @param {CanvasRenderingContext2D} ctx - context in which to draw the object 
  * @param {Object} [options] - Defines placement and content.  
- * @param {Object} [options.keepOriginal] - Maintains a copy of the image so it can be reverted. Defaults to true.  
- * @param {Object} [options.crop] - Will crop the image. Defaults to false.  
- * @param {Object} [options.cropX] - Crop X value 
- * @param {Object} [options.cropY] - Crop Y value 
- * @param {Object} [options.cropW] - Crop width value. 
- * @param {Object} [options.cropH] - Crop height value. 
+ * @param {Object} [options.keepOriginal=true] - Maintains a copy of the image so it can be reverted. 
+ * @param {Object} [options.crop=false] - Will crop the image.
+ * @param {Object} [options.cropX=0] - Crop X value 
+ * @param {Object} [options.cropY=0] - Crop Y value 
+ * @param {Object} [options.cropW=0] - Crop width value. 
+ * @param {Object} [options.cropH=0] - Crop height value. 
  */
 function PostcardImageObject(url, ctx, options) {
 
@@ -123,7 +126,8 @@ function PostcardImageObject(url, ctx, options) {
 
   /* initialize with the supplied url */
   if(url.length) loadImage(url);
-  else throw new Error("empty URL string");
+  //else throw new Error("empty URL string");
+  //will init to empty object instead
 
   /***** private methods *****/
   /**
@@ -136,7 +140,7 @@ function PostcardImageObject(url, ctx, options) {
 
     var regex_url_test = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
 
-    if(!url || !url.length) throw new Error('no URL specified');
+    if(!url) throw new Error('no URL specified');
 
     if(url.indexOf('http://') === -1 && url.indexOf('https://') === -1) {   /* relative url */
       curr.url = url;
