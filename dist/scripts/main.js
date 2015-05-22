@@ -220,6 +220,14 @@ Filters.gradientMap = function (tone1, tone2) {
     obj.revert();
   });
 
+  document.getElementById("hide").addEventListener("click", function () {
+    obj.hide();
+  });
+  document.getElementById("show").addEventListener("click", function () {
+    obj.show();
+  });
+
+
   var toggle = false;
 
   document.getElementById("change").addEventListener("click", function () {

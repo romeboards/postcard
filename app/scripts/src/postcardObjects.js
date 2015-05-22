@@ -6,6 +6,7 @@
  * @param {text|image|shape} type - The type of object being rendered
  * @param {CanvasRenderingContext2D} ctx - context in which to draw the object
  * @param {Object} [options] - Defines placement and content. 
+ * @param {Object} [options.opacity] - Opacity of the image. Defaults to 1.0
  */
 function PostcardObject(type, ctx, options) {
 
@@ -14,6 +15,7 @@ function PostcardObject(type, ctx, options) {
     y: 0,
     w: 50,
     h: 50,
+    opcaity: 1.0,
     fill: "steelblue",
     selectable: false,
     zindex: 0,
@@ -35,8 +37,11 @@ function PostcardObject(type, ctx, options) {
 PostcardObject.prototype.draw = function() {
 
   // generic
+  this.ctx.save();
   this.ctx.fillStyle = this.opts.fill;
+  this.globalAlpha = this.opts.opacity;
   this.ctx.fillRect(this.x, this.y, this.w, this.h);
+  this.ctx.restore();
 };
 /**
  * Generic contains method for PostcardObject.
@@ -63,7 +68,20 @@ PostcardObject.prototype.update = function(newOptions) {
   _triggerEvent(this.ctx.canvas, "forcerender"); 
 
 };
-
+/**
+ * Set opacity on the PostcardObject to 1.0
+ */
+PostcardObject.prototype.show = function() {
+  this.opts.opacity = 1.0; 
+  _triggerEvent(this.ctx.canvas, "forcerender");   
+};
+/**
+ * Set opacity on the PostcardObject to 0.0
+ */
+PostcardObject.prototype.hide = function() {
+  this.opts.opacity = 0.0;  
+  _triggerEvent(this.ctx.canvas, "forcerender");   
+};
 
 PostcardImageObject.prototype = new PostcardObject();
 PostcardImageObject.prototype.constructor = PostcardImageObject;
@@ -74,6 +92,12 @@ PostcardImageObject.prototype.constructor = PostcardImageObject;
  * @param {String} url - URL to the image (relative or absolute)
  * @param {CanvasRenderingContext2D} ctx - context in which to draw the object 
  * @param {Object} [options] - Defines placement and content.  
+ * @param {Object} [options.keepOriginal] - Maintains a copy of the image so it can be reverted. Defaults to true.  
+ * @param {Object} [options.crop] - Will crop the image. Defaults to false.  
+ * @param {Object} [options.cropX] - Crop X value 
+ * @param {Object} [options.cropY] - Crop Y value 
+ * @param {Object} [options.cropW] - Crop width value. 
+ * @param {Object} [options.cropH] - Crop height value. 
  */
 function PostcardImageObject(url, ctx, options) {
 
@@ -211,7 +235,7 @@ PostcardImageObject.prototype.draw = function() {
       this.ctx.rotate(this.opts.rotation*Math.PI/180);
       x = -this.w/2; y = -this.h/2;
     }
-
+    this.ctx.globalAlpha = this.opts.opacity;
     if(this.opts.crop) {
       this.ctx.drawImage(this.imgElm, cropX, cropY, cropW, cropH, x, y, this.w, this.h);
     } else {
