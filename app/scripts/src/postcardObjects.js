@@ -217,7 +217,10 @@ function PostcardImageObject(url, ctx, options) {
    * @param {String} newUrl - the new URL 
    */
   this.changeURL = function(newUrl) {
-    if(newUrl === this.url) return;
+    if(newUrl === this.url) {
+      this.userImageLoaded.apply(this);            // still provide user callback function
+      return;
+    }
     this.imageloaded = false;
     if(newUrl in this.cache) {
       this.url = newUrl;
