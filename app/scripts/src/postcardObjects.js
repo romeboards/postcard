@@ -313,7 +313,7 @@ PostcardImageObject.prototype.onImageLoaded = function(callback) {
 PostcardTextObject.prototype = new PostcardObject();
 PostcardTextObject.prototype.constructor = PostcardTextObject;
 /**
- * Represents an internal object that deals with images
+ * Represents an internal object that deals with text
  * @constructor
  * @extends PostcardObject
  * @param {String} text - actual text value
@@ -343,8 +343,8 @@ function PostcardTextObject(text, ctx, options) {
 
   var measureText = function() {
     curr._ctx.font = curr.getFont();
-    curr.w = curr._ctx.measureText(curr.text).width;    
-    curr.h = parseInt(curr.opts.size, 10);    
+    curr.w = curr.opts.w = curr._ctx.measureText(curr.text).width;    
+    curr.h = curr.opts.h = parseInt(curr.opts.size, 10);    
   };
 
   //console.log("text: " + this.text + " w: " + this.w + " h: " + this.h);
@@ -370,6 +370,7 @@ PostcardTextObject.prototype.update = function(newOptions) {
   this.opts = _extend( {}, this.opts, newOptions);  
   this.x = parseInt(this.opts.x, 10);                           /* for brevitys sake */
   this.y = parseInt(this.opts.y, 10);
+  curr._ctx.font = curr.getFont();
   this.w = this.opts.w = this._ctx.measureText(this.text).width; 
   this.h = parseInt(this.opts.h, 10);
 };
@@ -390,6 +391,7 @@ PostcardTextObject.prototype.contains = function(mx, my) {
  */
 PostcardTextObject.prototype.changeText = function(newText) {
   this.text = newText;
+  // dont need to update _ctx.font here
   this.w = this.opts.w = this._ctx.measureText(this.text).width;
   _triggerEvent(this.ctx.canvas, "forcerender");
 };
